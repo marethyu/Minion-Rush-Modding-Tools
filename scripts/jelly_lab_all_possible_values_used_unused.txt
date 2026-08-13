@@ -1,0 +1,537 @@
+MINION RUSH JELLY LAB - COMPLETE KNOWN VALUE CATALOG
+========================================================================
+
+1. area.mapAreaDefinition
+------------------------------------------------------------------------
+Defined: 15 | Used: 6 | Unused: 9
+All MapAreaDef entities defined in maplib are listed, including clone/test/end/special definitions.
+[UNUSED] /Map_Area_001/MapAreaDef_001
+[USED] /Map_Area_002/MapAreaDef_002
+[USED] /Map_Area_003/MapAreaDef_003
+[UNUSED] /Map_Area_003_Clone/MapAreaDef_003_Clone
+[USED] /Map_Area_004/MapAreaDef_004
+[UNUSED] /Map_Area_004_Clone/MapAreaDef_004_Clone
+[USED] /Map_Area_005/MapAreaDef_005
+[UNUSED] /Map_Area_005Clone/MapAreaDef_005_Clone
+[USED] /Map_Area_006/MapAreaDef_006
+[UNUSED] /Map_Area_006/MapAreaDef_END
+[USED] /Map_Area_007/MapAreaDef_007
+[UNUSED] /Map_Area_008/MapAreaDef_008
+[UNUSED] /Map_Area_009/MapAreaDef_009
+[UNUSED] /Map_Area_Test1/MapAreaDef_Test1
+[UNUSED] /Map_Area_Test2/MapAreaDef_Test2
+
+2. area.mapAreaBackgroundData
+------------------------------------------------------------------------
+Defined: 21 | Used: 16 | Unused: 5
+All MapBackgroundData entities defined in maplib are listed, including alternate LAB/start/story backgrounds.
+[UNUSED] /MapAreaBG2_LAB/MapAreaBackgroundData_LAB2
+[UNUSED] /MapAreaBG3_LAB/MapAreaBackgroundData_LAB3
+[UNUSED] /MapAreaBG4_LAB/MapAreaBackgroundData_LAB4
+[USED] /MapAreaBG_AMU/MapAreaBackgroundData_AMU
+[USED] /MapAreaBG_ARC/MapAreaBackgroundData_ARC
+[USED] /MapAreaBG_AVL/MapAreaBackgroundData_AVL
+[USED] /MapAreaBG_BEA/MapAreaBackgroundData_BEA
+[USED] /MapAreaBG_CIT/MapAreaBackgroundData_CIT
+[USED] /MapAreaBG_EDU/MapAreaBackgroundData_EDU
+[USED] /MapAreaBG_FORT/MapAreaBackgroundData_FORT
+[USED] /MapAreaBG_LAB/MapAreaBackgroundData_LAB
+[USED] /MapAreaBG_MAC/MapAreaBackgroundData_MAC
+[USED] /MapAreaBG_MAL/MapAreaBackgroundData_MAL
+[USED] /MapAreaBG_PIER/MapAreaBackgroundData_PIER
+[USED] /MapAreaBG_PYR/MapAreaBackgroundData_PYR
+[USED] /MapAreaBG_RES/MapAreaBackgroundData_RES
+[USED] /MapAreaBG_StartA/MapAreaBackgroundData_StartA
+[UNUSED] /MapAreaBG_StartB/MapAreaBackgroundData_StartB
+[UNUSED] /MapAreaBG_StoryEvents/MapAreaBackgroundData_StoryEvents
+[USED] /MapAreaBG_VOL/MapAreaBackgroundData_VOL
+[USED] /MapAreaBG_WED/MapAreaBackgroundData_WED
+
+3. area.FruitData
+------------------------------------------------------------------------
+Defined: 14 | Used: 14 | Unused: 0
+All MapAreaFruitData entities defined in maplib are listed.
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Apple
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Blueberry
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Cherry
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Coconut
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Grape
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Kiwi
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Lemon
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Mango
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Orange
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Pear
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Pineapple
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Plum
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Strawberry
+[USED] /MapLevelDef/MapSystem/MapAreaFruitData/MapAreaFruitData_Watermelon
+
+4. area.BonusType1 and area.BonusType2
+------------------------------------------------------------------------
+Both properties use Clara type GameAwardRef, which is a string reference and has NO finite
+schema enum. Therefore, unlike Location/CostumePriceRange, the binary schema cannot prove a
+mathematically closed list of every arbitrary string that could be serialized.
+
+The candidate pool below is the complete KNOWN EXISTING pool recovered from maplib + designlib by taking:
+  - every existing value observed anywhere in a GameAwardRef-typed property;
+  - every defined GameAward entity; and
+  - every prize-pod OfflineItemDef named *Award_Definition*.
+Known existing candidates: 184
+Stock BonusType1 distinct values: 3
+Stock BonusType2 distinct values: 4
+
+Stock BonusType1 values:
+  /LevelDef/InventoryItems/prizePods_Items/1STAR_3Pack_Pod_Award_Definition
+  /LevelDef/InventoryItems/prizePods_Items/2STARS_3Pack_Pod_Award_Definition
+  /Online/Online_Awards/v27_Online_Awards/v27_OnlineAward_Blindbox_Golden_Tickets
+Stock BonusType2 values:
+  /MapMissions/Rewards/Reward_DespicableMultiplierx1
+  /MapMissions/Rewards/Reward_DespicableMultiplierx2
+  /MapMissions/Rewards/Reward_DespicableMultiplierx3
+  /MapMissions/Rewards/Reward_DespicableMultiplierx4
+
+All known existing GameAwardRef-compatible candidates:
+[unused-in-BonusType1; unused-in-BonusType2] /LevelDef/InventoryItems/Currencies/up20_Currency_BluePrint  (class=OfflineItemDef; evidence=observed-via-GameAwardRef)
+[USED-BonusType1; unused-in-BonusType2] /LevelDef/InventoryItems/prizePods_Items/1STAR_3Pack_Pod_Award_Definition  (class=OfflineItemDef; evidence=observed-via-GameAwardRef,prizePod-Award_Definition)
+[unused-in-BonusType1; unused-in-BonusType2] /LevelDef/InventoryItems/prizePods_Items/1STAR_3Pack_Pod_Award_Definition_2  (class=OfflineItemDef; evidence=prizePod-Award_Definition)
+[USED-BonusType1; unused-in-BonusType2] /LevelDef/InventoryItems/prizePods_Items/2STARS_3Pack_Pod_Award_Definition  (class=OfflineItemDef; evidence=observed-via-GameAwardRef,prizePod-Award_Definition)
+[unused-in-BonusType1; unused-in-BonusType2] /LevelDef/InventoryItems/prizePods_Items/2STARS_3Pack_Pod_Award_Definition_2  (class=OfflineItemDef; evidence=prizePod-Award_Definition)
+[unused-in-BonusType1; unused-in-BonusType2] /LevelDef/InventoryItems/prizePods_Items/2STARS_6Pack_Pod_Award_Definition  (class=OfflineItemDef; evidence=observed-via-GameAwardRef,prizePod-Award_Definition)
+[unused-in-BonusType1; unused-in-BonusType2] /LevelDef/InventoryItems/prizePods_Items/2STARS_6Pack_Pod_Award_Definition_2  (class=OfflineItemDef; evidence=prizePod-Award_Definition)
+[unused-in-BonusType1; unused-in-BonusType2] /MapMissions/Rewards/Reward_BlindBox_Gold  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /MapMissions/Rewards/Reward_BlindBox_Silver  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; USED-BonusType2] /MapMissions/Rewards/Reward_DespicableMultiplierx1  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; USED-BonusType2] /MapMissions/Rewards/Reward_DespicableMultiplierx2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; USED-BonusType2] /MapMissions/Rewards/Reward_DespicableMultiplierx3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; USED-BonusType2] /MapMissions/Rewards/Reward_DespicableMultiplierx4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /MapMissions/Rewards/Reward_DespicableMultiplierx5  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/DailyRewards/v15_DailyAward_COSTUME_FREE_TRY_46_MinionCostume_Carl_None  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/DailyRewards/v16_DailyAward_COSTUME_FREE_TRY_47_MinionCostume_Jerry_None  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/DailyRewards/v9_DailyAward_BLINDBOX_DailyLogin  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/DailyRewards/v9_DailyAward_BLINDBOX_DailyLogin7  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/DailyRewards/v9_DailyAward_CURRENCY_Banana  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/DailyRewards/v9_DailyAward_CURRENCY_Token  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v10_Online_Awards/v10_OnlineAward_COSTUME_40_Lifeguard  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v10_Online_Awards/v10_OnlineAward_COSTUME_41_Boxer  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v10_Online_Awards/v10_OnlineAward_COSTUME_42_LC_KHA_001_costume01  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v10_Online_Awards/v10_OnlineAward_COSTUME_43_LC_KHA_002_costume02  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_First3_Fluffy  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_First3_FreezeRay  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_First3_MegaMinion  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_First3_Moon  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_First3_Rocket  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_First3_Shield  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_First3_Splitter  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_First3_Vacuum  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_SW_Fluffy  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_SW_FreezeRay  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_SW_MegaMinion  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_SW_Moon  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_SW_Rocket  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_SW_Shield  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_SW_Splitter  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_Booster_SW_Vacuum  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_COSTUME_44_Frank  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkBananaMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkBananaMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkBananaMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkBananaMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkBattleMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkBattleMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkBattleMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkBattleMultiplier_x6  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkJumpsMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkJumpsMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkJumpsMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkJumpsMultiplier_x6  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkMeterMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkMeterMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkMeterMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkMeterMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkMissesMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkMissesMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkMissesMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkMissesMultiplier_x6  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkPickupsMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkPickupsMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkPickupsMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkPickupsMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkScoreMultiplierMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkScoreMultiplierMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkScoreMultiplierMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkScoreMultiplierMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSecondMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSecondMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSecondMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSecondMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSlidesMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSlidesMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSlidesMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSlidesMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSmashMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSmashMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSmashMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkSmashMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkStarMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkStarMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkStarMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkStarMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkUsesMultiplier_x2  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkUsesMultiplier_x3  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkUsesMultiplier_x4  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v11_OnlineAwards/v11_OnlineAward_PerkUsesMultiplier_x6  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v12_Online_Awards/v12_OnlineAward_COSTUME_44_Lifeguard  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v13_Online_Awards/v13_OnlineAward_COSTUME_45_LC_CHD_001_MinionCostume_Fuwa  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v13_Online_Awards/v13_OnlineAward_LocationSpecificBonus_Snowboard  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v14_Online_Awards/v14_OnlineAward_LocationSpecificBonus_Skateboard  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v15_Online_Awards/v15_OnlineAward_BLINDBOX_Blindbox_Perks  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v15_Online_Awards/v15_OnlineAward_COSTUME_46_MinionCostume_Carl_None  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v15_Online_Awards/v15_OnlineAward_LocationSpecificBonus_BMX  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v16_Online_Awards/v16_OnlineAward_COSTUME_47_MinionCostume_Jerry  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v18_Online_Awards/v18_OnlineAward_LocationSpecificBonus_Motocross  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v19_Online_Awards/v19_OnlineAward_LocationSpecificBonus_Scooter  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v19_Online_Awards/v27_OnlineAward_COSTUME_59_MinionCostume_Jerry_BeekeeperHat  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v20_OnlineAwards/v20_OnlineAward_COSTUME_48_MinionCostume_Disco  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v20_OnlineAwards/v20_OnlineAward_CannonLauncher  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v20_OnlineAwards/v20_OnlineAward_LocationSpecificBonus_Submarine  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v20_OnlineAwards/v20_OnlineAward_PuzzlePiece  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v20_OnlineAwards/v20_OnlineAward_Revive  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v20_OnlineAwards/v20_OnlineAward_SeasonalCollectable  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v20_OnlineAwards/v20_OnlineAward_SeasonalGift  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v21_Online_Awards/v21_OnlineAward_COSTUME_50_MinionCostume_Carl_SantaHat  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v21_Online_Awards/v21_OnlineAward_COSTUME_51_MinionCostume_Jerry_SantaHat  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v21_Online_Awards/v21_OnlineAward_LocationSpecificBonus_Sled  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v21_Online_Awards/v21_OnlineAward_SeasonalCollectable  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v21_Online_Awards/v21_OnlineAward_Seasonal_Blindbox  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v22_Online_Awards/v22_OnlineAward_COSTUME_49_MinionCostume_Skater  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v22_Online_Awards/v22_OnlineAward_Featuring_Blindbox  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v22_Online_Awards/v22_OnlineAward_LocationSpecificBonus_Roller  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v22_Online_Awards/v22_OnlineAward_SeasonalCollectable  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v22_Online_Awards/v22_OnlineAward_Seasonal_Blindbox  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v23_Online_Awards/v23_OnlineAward_LocationSpecificBonus_Jetski  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v23_Online_Awards/v23_OnlineAward_SeasonalCollectable  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v24_Online_Awards/v24_OnlineAward_COSTUME_54_MinionCostume_Soccer  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v24_Online_Awards/v24_OnlineAward_LocationSpecificBonus_Soccer  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v24_Online_Awards/v24_OnlineAward_SeasonalCollectable  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v25_Online_Awards/v25_OnlineAward_Blueprint_Blindbox  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v25_Online_Awards/v25_OnlineAward_COSTUME_55_MinionCostume_Cleopatra  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v25_Online_Awards/v25_OnlineAward_LocationSpecificBonus_Kite  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v25_Online_Awards/v25_OnlineAward_SeasonalCollectable  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v26_Online_Awards/v26_OnlineAward_COSTUME_56_MinionCostume_Athenian  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v26_Online_Awards/v26_OnlineAward_LocationSpecificBonus_Diving  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v26_Online_Awards/v26_OnlineAward_MegaPerks_Blindbox  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[USED-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v27_Online_Awards/v27_OnlineAward_Blindbox_Golden_Tickets  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v27_Online_Awards/v27_OnlineAward_COSTUME_57_MinionCostume_Hazmat  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v27_Online_Awards/v27_OnlineAward_COSTUME_58_MinionCostume_Carl_BeehiveHat  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v27_Online_Awards/v27_OnlineAward_COSTUME_59_MinionCostume_Jerry_BeehiveHat  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v27_Online_Awards/v27_OnlineAward_LocationSpecificBonus_Mower  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v28_Online_Awards/v28_OnlineAward_Blindbox_Ghost  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v28_Online_Awards/v28_OnlineAward_COSTUME_60_MinionCostume_Bride_Of_Frankenstein  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v28_Online_Awards/v28_OnlineAward_COSTUME_61_MinionCostume_Ghost  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v28_Online_Awards/v28_OnlineAward_LocationSpecificBonus_UFO  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_BLINDBOX_Blindbox  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_01_Magician  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_02_Maid  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_03_Knight  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_04_Ninja  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_05_Vampire  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_06_Mariachi  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_07_Beedo  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_08_Firefighter  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_09_Vacationer  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_10_Surfer  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_11_Dancer  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_12_Golfer  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_13_Baker  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_14_Grandpa_PuzzleP  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_15_Snorkeler  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_16_Jelly  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_17_Girl  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_18_Partier  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_19_Dad  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_20_Mom_BananaP  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_21_Worker  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_22_Baby_BananaP  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_23_Referee  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_24_Singer  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_25_Hunter_BananaP  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_26_TortillaChipHat_PuzzleP  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_28_Snowboarder  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_29_Ballerina  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_30_Disguised_PuzzleP  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_31_Santa  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_32_Quarterback  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_33_Jogger  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_34_Cupid  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_35_Astronaut  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_36_Starfish  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_COSTUME_37_Tourist  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_CURRENCY_Banana  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_CURRENCY_Token  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_PERK_BananaMultiplier  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_PERK_DespicableMultiplier  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v8_Online_Awards/OnlineAward_PERK_MinionLauncher  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v9_Online_Awards/v9_OnlineAward_BLINDBOX_Blindbox_Golden  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v9_Online_Awards/v9_OnlineAward_COSTUME_38_Jar  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /Online/Online_Awards/v9_Online_Awards/v9_OnlineAward_COSTUME_39_Lucy  (class=GameAward; evidence=GameAward-entity)
+[unused-in-BonusType1; unused-in-BonusType2] /StoryMission/GameAward_BlindBox_AutoDelivery  (class=GameAward; evidence=observed-via-GameAwardRef,GameAward-entity)
+
+NOTE: candidates not already used as MapArea bonuses are type-compatible/defined candidates,
+but their runtime behavior as a Jelly Lab area reward is not proven until tested in-game.
+
+5. area.CostumePriceRange
+------------------------------------------------------------------------
+Schema enum: PriceRange | Total values: 3
+[USED] id=0 name=Cheap
+[USED] id=1 name=Medium
+[USED] id=2 name=Expensive
+
+6. mission.Location
+------------------------------------------------------------------------
+Schema enum: MapMissionLocationEnum | Total values: 37 | Used: 28 | Unused: 9
+[USED] id=0 name=random
+[USED] id=1 name=laboratory
+[USED] id=2 name=residential
+[USED] id=3 name=macho
+[USED] id=4 name=beach
+[UNUSED] id=5 name=resiNight
+[USED] id=6 name=mall
+[UNUSED] id=7 name=xmas
+[USED] id=8 name=city
+[USED] id=9 name=avl
+[USED] id=10 name=amusementPark
+[USED] id=11 name=volcano
+[USED] id=12 name=fort
+[USED] id=13 name=arc
+[USED] id=14 name=wed
+[USED] id=15 name=edu
+[USED] id=16 name=fluffy
+[USED] id=17 name=largeMinion
+[USED] id=18 name=moon
+[USED] id=19 name=rocket
+[USED] id=20 name=vacuum
+[USED] id=21 name=bananaSplitter
+[USED] id=22 name=shield
+[USED] id=23 name=freezeRay
+[USED] id=24 name=bossVector
+[USED] id=25 name=bossMeena
+[USED] id=26 name=bossMacho
+[USED] id=27 name=bossVillaintriloquist
+[UNUSED] id=28 name=storyEvent1
+[UNUSED] id=29 name=storyEvent2
+[UNUSED] id=30 name=storyEvent3
+[UNUSED] id=31 name=storyEvent_rewardPrize1
+[UNUSED] id=32 name=storyEvent_rewardPrize2
+[UNUSED] id=33 name=storyEvent_rewardPrize3
+[UNUSED] id=34 name=onlineTLE
+[USED] id=35 name=pier
+[USED] id=36 name=pyramid
+
+7. mission.ForceLocation
+------------------------------------------------------------------------
+Type: environmentIdEnum (u32 + name). This type has no alias table in the Clara schema,
+so the list is recovered exhaustively from every environmentIdEnum-typed value in maplib + designlib.
+Known name/value pairs: 29 | Used by stock Jelly Lab missions: 16 | Unused there: 13
+[USED] value=0 name=laboRoom
+[USED] value=1 name=residential
+[USED] value=2 name=machoLab
+[USED] value=3 name=minionsBeach
+[UNUSED] value=4 name=resiNight
+[USED] value=5 name=mall
+[UNUSED] value=6 name=xmas
+[USED] value=7 name=city
+[USED] value=8 name=avl
+[USED] value=9 name=amusementPark
+[USED] value=10 name=volcano
+[USED] value=11 name=fort
+[USED] value=12 name=arc
+[USED] value=13 name=wed
+[USED] value=14 name=edu
+[UNUSED] value=15 name=amu_multi
+[UNUSED] value=16 name=volcano_multi
+[UNUSED] value=17 name=mall_multi
+[UNUSED] value=18 name=avl_multi
+[UNUSED] value=19 name=arc_multi
+[UNUSED] value=20 name=wed_multi
+[UNUSED] value=21 name=pier_multi
+[USED] value=22 name=pier
+[USED] value=23 name=pyramid
+[UNUSED] value=24 name=pyramid_multi
+[UNUSED] value=25 name=beach_multi
+[UNUSED] value=26 name=edu_multi
+[UNUSED] value=27 name=macho_multi
+[USED] value=4294967295 name=none
+
+8. mission.MissionTarget
+------------------------------------------------------------------------
+Defined: 58 | Used: 48 | Unused: 10
+All MapTarget entities defined in maplib are listed. This is a closed definition list for this build.
+[USED] /MapMissions/TargetDef/Beat_Macho_x_times
+[USED] /MapMissions/TargetDef/Beat_Meena_x_times
+[USED] /MapMissions/TargetDef/Beat_Vector_x_times
+[USED] /MapMissions/TargetDef/Beat_Villaintriloquist_x_times
+[USED] /MapMissions/TargetDef/Become_a_Megaminion_x_times
+[USED] /MapMissions/TargetDef/Break_through_x_objects_with_the_shield
+[USED] /MapMissions/TargetDef/Collect_x_bananas_with_the_fluffy
+[USED] /MapMissions/TargetDef/Collect_x_bananas_with_the_rocket
+[USED] /MapMissions/TargetDef/Collect_x_bananas_with_the_splitter
+[USED] /MapMissions/TargetDef/Collect_x_bananas_with_the_vacuum
+[USED] /MapMissions/TargetDef/Collect_x_bananas_without_fluffy
+[USED] /MapMissions/TargetDef/Collect_x_bananas_without_the_splitter
+[UNUSED] /MapMissions/TargetDef/Collect_x_bananas_without_the_vacuum
+[USED] /MapMissions/TargetDef/Collect_x_stars_on_the_moon
+[USED] /MapMissions/TargetDef/Commit_x_despicable_actions
+[USED] /MapMissions/TargetDef/Commit_x_despicable_actions_as_Mega_Minion
+[USED] /MapMissions/TargetDef/Commit_x_despicable_actions_while_fighting_Macho
+[USED] /MapMissions/TargetDef/Commit_x_despicable_actions_while_fighting_Meena
+[USED] /MapMissions/TargetDef/Commit_x_despicable_actions_while_fighting_Vector
+[USED] /MapMissions/TargetDef/Commit_x_despicable_actions_while_fighting_the_Villaintriloquist
+[UNUSED] /MapMissions/TargetDef/Commit_x_despicable_actions_while_the_Freeze_ray_is_active
+[UNUSED] /MapMissions/TargetDef/Commit_x_despicable_actions_while_the_Shield_is_active
+[USED] /MapMissions/TargetDef/Crush_x_objects_as_Megaminion
+[USED] /MapMissions/TargetDef/Fly_x_meters_on_Grus_Rocket
+[USED] /MapMissions/TargetDef/Fly_x_seconds_with_the_rocket
+[USED] /MapMissions/TargetDef/Freeze_x_objects
+[UNUSED] /MapMissions/TargetDef/Get_despicable_score_of_x
+[USED] /MapMissions/TargetDef/Increase_despicable_multiplier_x_times
+[USED] /MapMissions/TargetDef/Jump_over_obstacles_x_times
+[UNUSED] /MapMissions/TargetDef/Jump_x_times
+[USED] /MapMissions/TargetDef/Miss_an_obstacle_x_times
+[USED] /MapMissions/TargetDef/Pick_up_the_freeze_ray_x_times
+[USED] /MapMissions/TargetDef/Pick_up_the_shield_x_times
+[USED] /MapMissions/TargetDef/Pick_up_the_splitter_x_times
+[USED] /MapMissions/TargetDef/Pick_up_the_vacuum_x_times
+[USED] /MapMissions/TargetDef/Ride_Fluffy_x_times
+[USED] /MapMissions/TargetDef/Ride_Grus_Rocket_x_times
+[UNUSED] /MapMissions/TargetDef/Roll_x_times
+[UNUSED] /MapMissions/TargetDef/Run_on_top_of_x_ramps
+[USED] /MapMissions/TargetDef/Run_x_meters
+[USED] /MapMissions/TargetDef/Run_x_meters_as_the_Mega_Minion
+[USED] /MapMissions/TargetDef/Run_x_meters_with_the_banana_splitter
+[USED] /MapMissions/TargetDef/Run_x_meters_with_the_banana_vacuum
+[USED] /MapMissions/TargetDef/Run_x_meters_with_the_shield
+[UNUSED] /MapMissions/TargetDef/Run_x_meters_without_collecting_bananas
+[UNUSED] /MapMissions/TargetDef/Run_x_meters_without_collecting_power_ups
+[UNUSED] /MapMissions/TargetDef/Run_x_meters_without_committing_any_despicable_actions
+[USED] /MapMissions/TargetDef/Run_x_seconds
+[USED] /MapMissions/TargetDef/Run_x_seconds_with_the_Mega_Minion
+[USED] /MapMissions/TargetDef/Run_x_seconds_with_the_freeze_ray
+[USED] /MapMissions/TargetDef/Run_x_seconds_with_the_shield
+[USED] /MapMissions/TargetDef/Run_x_seconds_with_the_splitter
+[USED] /MapMissions/TargetDef/Run_x_seconds_with_the_vacuum
+[USED] /MapMissions/TargetDef/Slide_under_obstacles_x_times
+[USED] /MapMissions/TargetDef/Smash_x_frozen_objects
+[USED] /MapMissions/TargetDef/Use_the_Toboggans_x_times
+[USED] /MapMissions/TargetDef/Visit_a_Secret_area_x_times
+[USED] /MapMissions/TargetDef/Visit_the_Moon_x_times
+
+9. mission.MissionAvoidingScope
+------------------------------------------------------------------------
+Defined MissionAvoidingScope entities: 7
+The empty string is also a real stock value and means no avoiding scope.
+[USED] <empty string>
+[USED] /MapMissions/TargetDef/AVOID_Objectives/AVOID_Bananas_HP
+[USED] /MapMissions/TargetDef/AVOID_Objectives/AVOID_Bananas_LP
+[USED] /MapMissions/TargetDef/AVOID_Objectives/AVOID_DespicableActions_HP
+[USED] /MapMissions/TargetDef/AVOID_Objectives/AVOID_DespicableActions_LP
+[USED] /MapMissions/TargetDef/AVOID_Objectives/AVOID_Jumping_HP
+[USED] /MapMissions/TargetDef/AVOID_Objectives/AVOID_Jumping_LP
+[UNUSED] /MapMissions/TargetDef/AVOID_Objectives/AVOID_Sliding
+
+Note: Likely, HP is short for "high penalty" and LP is short for "low penalty."
+
+10. mission.Perks
+------------------------------------------------------------------------
+Defined PerkTemplate entities: 48 | Used by stock Jelly Lab: 24 | Defined but unused: 24
+[USED] <empty string / [] in the minimal editor>
+[USED] /LevelDef/Perks/PerkBananaMultiplier_x2
+[USED] /LevelDef/Perks/PerkBananaMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkBananaMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkBananaMultiplier_x6
+[USED] /LevelDef/Perks/PerkBattleMultiplier_x2
+[USED] /LevelDef/Perks/PerkBattleMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkBattleMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkBattleMultiplier_x6
+[USED] /LevelDef/Perks/PerkJumpsMultiplier_x2
+[USED] /LevelDef/Perks/PerkJumpsMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkJumpsMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkJumpsMultiplier_x6
+[USED] /LevelDef/Perks/PerkMeterMultiplier_x2
+[USED] /LevelDef/Perks/PerkMeterMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkMeterMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkMeterMultiplier_x6
+[USED] /LevelDef/Perks/PerkMissesMultiplier_x2
+[USED] /LevelDef/Perks/PerkMissesMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkMissesMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkMissesMultiplier_x6
+[USED] /LevelDef/Perks/PerkPickupsMultiplier_x2
+[USED] /LevelDef/Perks/PerkPickupsMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkPickupsMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkPickupsMultiplier_x6
+[USED] /LevelDef/Perks/PerkScoreMultiplierMultiplier_x2
+[USED] /LevelDef/Perks/PerkScoreMultiplierMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkScoreMultiplierMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkScoreMultiplierMultiplier_x6
+[USED] /LevelDef/Perks/PerkSecondMultiplier_x2
+[USED] /LevelDef/Perks/PerkSecondMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkSecondMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkSecondMultiplier_x6
+[USED] /LevelDef/Perks/PerkSlidesMultiplier_x2
+[USED] /LevelDef/Perks/PerkSlidesMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkSlidesMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkSlidesMultiplier_x6
+[USED] /LevelDef/Perks/PerkSmashMultiplier_x2
+[USED] /LevelDef/Perks/PerkSmashMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkSmashMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkSmashMultiplier_x6
+[USED] /LevelDef/Perks/PerkStarMultiplier_x2
+[USED] /LevelDef/Perks/PerkStarMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkStarMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkStarMultiplier_x6
+[USED] /LevelDef/Perks/PerkUsesMultiplier_x2
+[USED] /LevelDef/Perks/PerkUsesMultiplier_x3
+[UNUSED] /LevelDef/Perks/PerkUsesMultiplier_x4
+[UNUSED] /LevelDef/Perks/PerkUsesMultiplier_x6
+
+Runtime note: your in-game test established that Jelly Lab displays/uses at most 2 perk entries per mission.
+The editor therefore caps the Perks array at 2 even though x4/x6 definitions exist.
+
+11. mission.boosters
+------------------------------------------------------------------------
+Defined InitialBooster entities: 16 | Used by stock Jelly Lab: 16 | Defined but unused: 0
+[USED] <empty string / [] in the minimal editor>
+[USED] /LevelDef/InitialBoosters/IBooster_First3_Fluffy
+[USED] /LevelDef/InitialBoosters/IBooster_First3_FreezeRay
+[USED] /LevelDef/InitialBoosters/IBooster_First3_MegaMinion
+[USED] /LevelDef/InitialBoosters/IBooster_First3_Moon
+[USED] /LevelDef/InitialBoosters/IBooster_First3_Rocket
+[USED] /LevelDef/InitialBoosters/IBooster_First3_Shield
+[USED] /LevelDef/InitialBoosters/IBooster_First3_Splitter
+[USED] /LevelDef/InitialBoosters/IBooster_First3_Vacuum
+[USED] /LevelDef/InitialBoosters/IBooster_SW_Fluffy
+[USED] /LevelDef/InitialBoosters/IBooster_SW_FreezeRay
+[USED] /LevelDef/InitialBoosters/IBooster_SW_MegaMinion
+[USED] /LevelDef/InitialBoosters/IBooster_SW_Moon
+[USED] /LevelDef/InitialBoosters/IBooster_SW_Rocket
+[USED] /LevelDef/InitialBoosters/IBooster_SW_Shield
+[USED] /LevelDef/InitialBoosters/IBooster_SW_Splitter
+[USED] /LevelDef/InitialBoosters/IBooster_SW_Vacuum
+
+Runtime/editor note: the current minimal editor caps boosters at 2 entries per mission.
+
+COMPLETENESS / CROSS-CHECK SUMMARY
+------------------------------------------------------------------------
+MapAreaDef entities: 15 (stock ordered areas use 6)
+MapBackgroundData entities: 21 (stock ordered areas use 16)
+MapAreaFruitData entities: 14 (stock ordered areas use 14)
+PriceRange enum aliases: 3 (stock ordered areas use 3)
+MapMissionLocationEnum aliases: 37 (stock missions use 28)
+environmentIdEnum known name/value pairs: 29 (stock missions use 16)
+MapTarget entities: 58 (stock missions use 48)
+MissionAvoidingScope entities: 7 (stock missions use 6 non-empty + empty)
+PerkTemplate entities: 48 (stock missions use 24 non-empty + empty)
+InitialBooster entities: 16 (stock missions use 16 non-empty + empty)
+Known existing GameAwardRef-compatible candidate references: 184
+
+Every stock reference in the requested finite-reference fields was cross-checked against the
+corresponding definition/enum candidate set. No unresolved stock value remained.
