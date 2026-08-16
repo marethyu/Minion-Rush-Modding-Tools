@@ -4,6 +4,7 @@ This repository contains all Python scripts I use for modding the kiddy game *De
 
 ## List of all scripts
 * `minion_rush_config_codec.py`: used for editing contents of `filesConfig.dat` and `config##########`
+* `bclara_editor.py`: used for editing contents of Gameloft's proprietary `.bclara` files
 * `blibclara_editor.py`: used for editing contents of Gameloft's proprietary `.blibclara` files
 * `jpk.py`: used for extracting and replacing contents of `.jpk` archive files
 * `jelly_lab_area_json_editor.py`: wrapper over `blibclara_editor.py` to facilitate editing of `maplib.blibclara`

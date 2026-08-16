@@ -26,11 +26,15 @@ complete decoded manifest.
 
 Requirements
 ------------
-Keep this script in the same directory as::
+Keep this script in the same directory as the refactored Clara codec stack::
 
+    clara_common.py
+    bclara_editor.py
     blibclara_editor.py
 
-No third-party Python packages are required; ``sqlite3`` is part of Python.
+``maplib_to_sqlite.py`` imports only ``blibclara_editor`` directly; the other
+two modules are dependencies of the refactored editor. No third-party Python
+packages are required; ``sqlite3`` is part of Python.
 Python 3.9+ is supported.
 
 Usage
@@ -104,6 +108,8 @@ MAP_MISSION_ROOT = "/MapMissions/MapMissionDef/"
 MAP_AREA_RE = re.compile(r".*/MapArea(\d+)$")
 MAP_MISSION_RE = re.compile(r"Mission(\d+)_(\d+)$")
 SCHEMA_VERSION = 3
+DECODER_MANIFEST_FORMAT = "blibclara_editor.decode_file"
+DECODER_MANIFEST_VERSION = 1
 
 
 class ExportError(RuntimeError):
@@ -212,7 +218,7 @@ def _iter_entities(full: dict[str, Any]) -> Iterator[tuple[int, str, str, dict[s
                     raise ExportError(f"duplicate Clara entity path: {entity_path}")
                 seen.add(entity_path)
                 yield library_index, entity_path, folder_path, entity
-            elif kind not in {"group", "multilayer"}:
+            elif kind not in {"group", "movie", "multilayer"}:
                 raise ExportError(
                     f"folder {folder_path!r} record {record_index} has unsupported kind {kind!r}"
                 )
@@ -1096,20 +1102,24 @@ def _populate_database(
     decoded_sha256 = full.get("source_sha256")
     if decoded_sha256 != source_sha256:
         raise ExportError("decoder source SHA-256 does not match the input bytes")
-    if full.get("format") != blibclara_editor.FORMAT:
-        raise ExportError(f"unexpected decoder format: {full.get('format')!r}")
-    if full.get("format_version") != blibclara_editor.FORMAT_VERSION:
-        raise ExportError(
-            f"unexpected decoder format version: {full.get('format_version')!r}"
-        )
+    schema = full.get("schema")
+    libraries = full.get("libraries")
+    if not isinstance(schema, dict):
+        raise ExportError("decoded Clara manifest has no schema object")
+    if not isinstance(libraries, list):
+        raise ExportError("decoded Clara manifest has no libraries list")
 
+    # Treat decode_file() as the supported API boundary.  The refactored
+    # blibclara_editor intentionally no longer exposes an internal full-manifest
+    # FORMAT constant, so the exporter validates the data it actually consumes
+    # instead of depending on private decoder metadata.
     info = {
         "sqlite_schema_version": str(SCHEMA_VERSION),
         "source_file": input_path.name,
         "source_sha256": source_sha256,
         "source_size": str(len(source_data)),
-        "decoder_format": str(full.get("format", "")),
-        "decoder_format_version": str(full.get("format_version", "")),
+        "decoder_format": DECODER_MANIFEST_FORMAT,
+        "decoder_format_version": str(DECODER_MANIFEST_VERSION),
     }
     db.executemany(
         "INSERT INTO database_info(key, value) VALUES (?, ?)",
