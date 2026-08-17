@@ -80,18 +80,18 @@ Commands
 
 Windows (``--keys`` not required):
 
-    python text_bin_english_json_editor.py decode text.bin english_strings.json
-    python text_bin_english_json_editor.py decode texts.texts english_strings.json
-    python text_bin_english_json_editor.py encode text.bin english_strings.json text_modified.bin
-    python text_bin_english_json_editor.py encode texts.texts english_strings.json texts_modified.texts
-    python text_bin_english_json_editor.py verify text.bin
-    python text_bin_english_json_editor.py verify texts.texts
+    python texts_english_json_editor.py decode text.bin english_strings.json
+    python texts_english_json_editor.py decode texts.texts english_strings.json
+    python texts_english_json_editor.py encode text.bin english_strings.json text_modified.bin
+    python texts_english_json_editor.py encode texts.texts english_strings.json texts_modified.texts
+    python texts_english_json_editor.py verify text.bin
+    python texts_english_json_editor.py verify texts.texts
 
 Android (raw ``.texts`` only):
 
-    python text_bin_english_json_editor.py decode texts.texts english_strings.json --keys texts.texts.keys
-    python text_bin_english_json_editor.py encode texts.texts english_strings.json texts_modified.texts --keys texts.texts.keys
-    python text_bin_english_json_editor.py verify texts.texts --keys texts.texts.keys
+    python texts_english_json_editor.py decode texts.texts english_strings.json --keys texts.texts.keys
+    python texts_english_json_editor.py encode texts.texts english_strings.json texts_modified.texts --keys texts.texts.keys
+    python texts_english_json_editor.py verify texts.texts --keys texts.texts.keys
 
 For Android, ``--keys`` may be omitted when the default sibling
 ``INPUT.texts.keys`` exists.
