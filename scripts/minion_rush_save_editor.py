@@ -24,11 +24,11 @@ If ``SAVEGAME`` is omitted, the editor falls back to the exact Windows Store
 package family below; it does NOT scan ``Packages`` for other candidate
 installations::
 
-    PACKAGE_FAMILY_NAME = "GAMELOFTSA.DespicableMeMinionRush_0pp20fcewvvtj"
+    PACKAGE_FAMILY_NAME = "MinionRushModded_t5wpntz2y2kfm"
 
 The fallback save path is exactly::
 
-    %LOCALAPPDATA%\\Packages\\GAMELOFTSA.DespicableMeMinionRush_0pp20fcewvvtj\\LocalState\\savegame
+    %LOCALAPPDATA%\\Packages\\MinionRushModded_t5wpntz2y2kfm\\LocalState\\savegame
 
 ``decode`` always writes ``savegame.json`` beside this script.  Edit only the
 ``editable`` section, then use ``encode`` with the same save file (or omit the
@@ -3395,7 +3395,7 @@ def rewrite_template(template: bytes, logical_payload: bytes) -> tuple[bytes, in
 
 # Intentionally hardcoded: this editor targets this exact Windows Store package.
 # Do not replace this with wildcard package discovery.
-PACKAGE_FAMILY_NAME = "GAMELOFTSA.DespicableMeMinionRush_0pp20fcewvvtj"
+PACKAGE_FAMILY_NAME = "MinionRushModded_t5wpntz2y2kfm"
 DEFAULT_CLEAN_JSON_NAME = "savegame.json"
 
 

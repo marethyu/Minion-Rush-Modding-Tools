@@ -11,7 +11,7 @@ Extract from an explicitly supplied data-mandatory JPK::
 If ``DATA_MANDATORY_JPK`` is omitted, the extractor automatically selects the
 newest suitable Windows data-mandatory JPK from::
 
-    %LOCALAPPDATA%\\Packages\\GAMELOFTSA.DespicableMeMinionRush_0pp20fcewvvtj\\LocalState\\dlcs
+    %LOCALAPPDATA%\\Packages\\MinionRushModded_t5wpntz2y2kfm\\LocalState\\dlcs
 
 The existing ``--data-mandatory-jpk PATH`` form is retained for compatibility.
 ``--dlcs-dir PATH`` can still override the directory searched when no JPK is
@@ -44,7 +44,7 @@ import blibclara_library_editor
 import jpk
 
 CATALOG_FORMAT = "minion_rush_jelly_lab_catalog_minimal_v3"
-PACKAGE_FAMILY_NAME = "GAMELOFTSA.DespicableMeMinionRush_0pp20fcewvvtj"
+PACKAGE_FAMILY_NAME = "MinionRushModded_t5wpntz2y2kfm"
 JELLY_MAP_AREAS_ORDER = "/MapLevelDef/MapSystem/MapAreasOrder"
 JELLY_MAPLIB_ENTRY = "maplib.blibclara"
 JELLY_MISSION_ROOT = "/MapMissions/MapMissionDef"
