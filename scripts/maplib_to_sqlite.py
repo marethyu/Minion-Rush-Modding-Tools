@@ -4,7 +4,7 @@
 The exporter is intentionally loss-preserving at the decoder level:
 
 * the complete original ``maplib.blibclara`` is stored as a BLOB;
-* the complete JSON manifest returned by ``blibclara_editor.decode_file()`` is
+* the complete JSON manifest returned by ``blibclara_library_editor.decode_file()`` is
   stored in the database;
 * every top-level Clara entity, property, and property element is also split
   into relational tables for convenient SQL queries;
@@ -30,9 +30,9 @@ Keep this script in the same directory as the refactored Clara codec stack::
 
     clara_common.py
     bclara_editor.py
-    blibclara_editor.py
+    blibclara_library_editor.py
 
-``maplib_to_sqlite.py`` imports only ``blibclara_editor`` directly; the other
+``maplib_to_sqlite.py`` imports only ``blibclara_library_editor`` directly; the other
 two modules are dependencies of the refactored editor. No third-party Python
 packages are required; ``sqlite3`` is part of Python.
 Python 3.9+ is supported.
@@ -101,14 +101,14 @@ from pathlib import Path
 from collections.abc import Iterator
 from typing import Any
 
-import blibclara_editor
+import blibclara_library_editor
 
 MAP_AREAS_ORDER_PATH = "/MapLevelDef/MapSystem/MapAreasOrder"
 MAP_MISSION_ROOT = "/MapMissions/MapMissionDef/"
 MAP_AREA_RE = re.compile(r".*/MapArea(\d+)$")
 MAP_MISSION_RE = re.compile(r"Mission(\d+)_(\d+)$")
 SCHEMA_VERSION = 3
-DECODER_MANIFEST_FORMAT = "blibclara_editor.decode_file"
+DECODER_MANIFEST_FORMAT = "blibclara_library_editor.decode_file"
 DECODER_MANIFEST_VERSION = 1
 
 
@@ -119,7 +119,7 @@ class ExportError(RuntimeError):
 def _json_safe(value: Any) -> Any:
     """Return a deterministic JSON-compatible representation.
 
-    ``blibclara_editor`` normally produces JSON-compatible values already.  The
+    ``blibclara_library_editor`` normally produces JSON-compatible values already.  The
     extra handling here makes the SQLite exporter robust to future decoder
     values containing bytes or non-finite floats without silently losing them.
     """
@@ -1110,7 +1110,7 @@ def _populate_database(
         raise ExportError("decoded Clara manifest has no libraries list")
 
     # Treat decode_file() as the supported API boundary.  The refactored
-    # blibclara_editor intentionally no longer exposes an internal full-manifest
+    # blibclara_library_editor intentionally no longer exposes an internal full-manifest
     # FORMAT constant, so the exporter validates the data it actually consumes
     # instead of depending on private decoder metadata.
     info = {
@@ -1171,8 +1171,8 @@ def _export_maplib(input_path: Path, output_path: Path, *, force: bool) -> dict[
 
     source_data = input_path.read_bytes()
     try:
-        full = blibclara_editor.decode_file(source_data, input_path.name)
-    except blibclara_editor.CodecError as exc:
+        full = blibclara_library_editor.decode_file(source_data, input_path.name)
+    except blibclara_library_editor.CodecError as exc:
         raise ExportError("cannot decode %s: %s" % (input_path, exc)) from exc
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

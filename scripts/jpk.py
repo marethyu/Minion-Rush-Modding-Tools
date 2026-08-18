@@ -105,7 +105,7 @@ COMMON SAFE WORKFLOW
 
 1. Keep the game's original JPK unchanged as the template.
 2. Extract the file to edit, or the entire archive.
-3. Modify the extracted asset (for example with ``blibclara_editor``).
+3. Modify the extracted asset.
 4. Use ``replace`` or ``sync`` against the *original* JPK.
 5. Run ``verify`` on the output.
 6. Optionally run ``compare`` to see exactly which entries differ.

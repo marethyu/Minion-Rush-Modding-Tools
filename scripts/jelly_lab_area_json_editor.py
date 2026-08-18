@@ -2,7 +2,7 @@
 """
 Minimal Jelly Lab selected-area JSON editor for Minion Rush maplib.blibclara.
 
-This is a parameter-editing layer over blibclara_editor. The decoded JSON is
+This is a parameter-editing layer over blibclara_library_editor. The decoded JSON is
 intentionally minimal and contains exactly two top-level keys::
 
     {
@@ -83,7 +83,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import blibclara_editor
+import blibclara_library_editor
 
 
 MAX_MISSION_ARRAY_ITEMS = 2
@@ -890,7 +890,7 @@ def apply_area_json(full: dict[str, Any], area: int, doc: dict[str, Any]) -> tup
 
 def cmd_decode(args: argparse.Namespace) -> None:
     data = args.input.read_bytes()
-    full = blibclara_editor.decode_file(data, args.input.name)
+    full = blibclara_library_editor.decode_file(data, args.input.name)
     doc = build_area_json(full, args.area)
     args.output.write_text(json.dumps(doc, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     print(f"Decoded Area {args.area}: {len(doc['levels'])} levels -> {args.output}")
@@ -902,7 +902,7 @@ def _reject_json_constant(value: str) -> None:
 
 def cmd_encode(args: argparse.Namespace) -> None:
     original = args.input.read_bytes()
-    full = blibclara_editor.decode_file(original, args.input.name)
+    full = blibclara_library_editor.decode_file(original, args.input.name)
     try:
         doc = json.loads(
             args.json.read_text(encoding="utf-8"),
@@ -913,10 +913,10 @@ def cmd_encode(args: argparse.Namespace) -> None:
 
     area, changed_levels = apply_area_json(full, args.area, doc)
     expected_doc = build_area_json(full, area)
-    rebuilt = blibclara_editor.encode_manifest(original, full)
+    rebuilt = blibclara_library_editor.encode_manifest(original, full)
 
     # Verify the exact rebuilt bytes in memory before touching the output path.
-    check = blibclara_editor.decode_file(rebuilt, args.output.name)
+    check = blibclara_library_editor.decode_file(rebuilt, args.output.name)
     check_doc = build_area_json(check, area)
     if check_doc != expected_doc:
         raise AreaEditError(
@@ -934,7 +934,7 @@ def cmd_encode(args: argparse.Namespace) -> None:
 
 def cmd_check(args: argparse.Namespace) -> None:
     data = args.input.read_bytes()
-    full = blibclara_editor.decode_file(data, args.input.name)
+    full = blibclara_library_editor.decode_file(data, args.input.name)
     entities = build_entity_index(full)
     area_numbers = ordered_area_numbers(entities)
     order = entities[MAP_AREAS_ORDER]
@@ -1004,7 +1004,7 @@ def main() -> int:
     try:
         args.func(args)
         return 0
-    except (AreaEditError, blibclara_editor.CodecError, OSError) as exc:
+    except (AreaEditError, blibclara_library_editor.CodecError, OSError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 

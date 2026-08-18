@@ -24,7 +24,7 @@ Default output::
 Dependencies imported directly from beside this script:
 
     jpk.py
-    blibclara_editor.py
+    blibclara_library_editor.py
 
 Run this file directly so Python places its directory on the import path and
 resolves those sibling modules normally.
@@ -40,7 +40,7 @@ import zipfile
 from pathlib import Path
 from typing import Any, Optional
 
-import blibclara_editor
+import blibclara_library_editor
 import jpk
 
 CATALOG_FORMAT = "minion_rush_jelly_lab_catalog_minimal_v3"
@@ -235,8 +235,8 @@ def build_catalogue(jpk_path: Path) -> dict[str, Any]:
         ) from exc
 
     try:
-        full = blibclara_editor.decode_file(maplib_data, JELLY_MAPLIB_ENTRY)
-    except blibclara_editor.CodecError as exc:
+        full = blibclara_library_editor.decode_file(maplib_data, JELLY_MAPLIB_ENTRY)
+    except blibclara_library_editor.CodecError as exc:
         raise CatalogError(f"cannot decode {JELLY_MAPLIB_ENTRY}: {exc}") from exc
 
     entities = _clara_build_indexes(full)

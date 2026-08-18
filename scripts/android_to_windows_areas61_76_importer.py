@@ -2,13 +2,13 @@
 """Import Android Jelly Lab Areas 61-76 into Windows up23 using clone_last_area.py.
 
 This converter targets the current cleaned ``clone_last_area.py`` and reuses its
-validated Clara tree helpers plus the ``blibclara_editor.py`` codec. Older helper
+validated Clara tree helpers plus the ``blibclara_library_editor.py`` codec. Older helper
 APIs are intentionally unsupported. All 16 clone steps run in memory and the result
 is encoded/verified once, avoiding 16 full-file decode/encode passes.  Android semantics are applied only after all Windows
 Area/MapMission records have been structurally cloned.
 
 Requirements:
-    Current ``clone_last_area.py`` and ``blibclara_editor.py`` must be importable.
+    Current ``clone_last_area.py`` and ``blibclara_library_editor.py`` must be importable.
     Normally keep all three scripts in the same directory.
 
 Usage:
@@ -130,7 +130,7 @@ def _require_clone_api() -> None:
     ]
     if codec_missing:
         raise SystemExit(
-            "ERROR: blibclara_editor.py is missing required API(s): " + ", ".join(codec_missing)
+            "ERROR: blibclara_library_editor.py is missing required API(s): " + ", ".join(codec_missing)
         )
 
 
@@ -789,7 +789,7 @@ def _convert(
         "android_sha256": hashlib.sha256(adata).hexdigest(),
         "windows_source": str(windows_path),
         "windows_sha256": hashlib.sha256(base_data).hexdigest(),
-        "structural_engine": "current cleaned clone_last_area.py helpers + blibclara_editor.py",
+        "structural_engine": "current cleaned clone_last_area.py helpers + blibclara_library_editor.py",
         "areas_imported": list(range(61, 77)),
         "missions_imported": 240,
         "policy": {

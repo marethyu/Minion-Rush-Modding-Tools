@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Clone the current last Minion Rush Jelly Lab area as a new last area.
 
-Requires ``blibclara_editor.py`` beside this script (or on ``PYTHONPATH``).
+Requires ``blibclara_library_editor.py`` beside this script (or on ``PYTHONPATH``).
 The generic Clara codec lives there; this tool contains only Jelly Lab cloning logic.
 
 Usage::
@@ -31,15 +31,15 @@ from pathlib import Path
 from typing import Any
 
 try:
-    import blibclara_editor as clara
+    import blibclara_library_editor as clara
 except ImportError as exc:
     raise SystemExit(
-        "ERROR: blibclara_editor.py is required. Put it beside this script or on PYTHONPATH."
+        "ERROR: blibclara_library_editor.py is required. Put it beside this script or on PYTHONPATH."
     ) from exc
 
 for _name in ("CodecError", "decode_file", "encode_manifest"):
     if not hasattr(clara, _name):
-        raise SystemExit(f"ERROR: current blibclara_editor.py is missing required API {_name!r}")
+        raise SystemExit(f"ERROR: current blibclara_library_editor.py is missing required API {_name!r}")
 
 
 MAP_AREAS_ROOT = "/MapLevelDef/MapSystem/MapAreas"
