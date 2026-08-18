@@ -36,7 +36,9 @@ bit 6 means elements have String16 names, and bit 7 means a u16 extended count
 follows. The supported type dispatch is the exact Clara v12 dispatch recovered
 for this build: 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080,
 0x0100, 0x0200, 0x0400, 0x0800, and 0x1000. Numeric type 0x0002 uses subtypes
-0..4 for i8/i16/i32/f32/f64.
+0..4 for i8/i16/i32/f32/f64. Type 0x0040 is a build-dependent state tuple: shipped
+Minion Rush data uses either two or three String16 values; decoding resolves the width
+from the bounded entity structure and encoding preserves the decoded width.
 
 SCHEMA FORMAT
 =============
@@ -77,6 +79,9 @@ CLARA_TYPES: dict[int, str] = {
     0x0008: "clara_string",
     0x0010: "shared_string_object",
     0x0020: "nested_entity",
+    # Build-dependent state tuple: two String16 values in older iOS data,
+    # three String16 values in the later Windows/Android schema.  Keep the
+    # historical type_name for JSON compatibility; the codec handles both.
     0x0040: "triple_string_a",
     0x0080: "float_vector",
     0x0100: "clara_string_plus_u32",
@@ -300,7 +305,9 @@ def parse_preamble(r: Reader) -> bytes:
         r.skip(4, "auxiliary value")
     return r.data[start:r.pos]
 
-def decode_value(r: Reader, param: Param, schema: Schema, path: str) -> Any:
+def decode_value(
+    r: Reader, param: Param, schema: Schema, path: str, *, state_arity: int | None = None
+) -> Any:
     code, sub = param.type_code, param.subtype
     if code == 2:
         if sub == 0:
@@ -342,7 +349,11 @@ def decode_value(r: Reader, param: Param, schema: Schema, path: str) -> Any:
         if br.remaining():
             raise ClaraError(f"{path}: {br.remaining()} trailing nested bytes")
         return entity
-    if code in (64, 512):
+    if code == 64:
+        if state_arity not in (2, 3):
+            raise ClaraError(f"{path}: Clara type 0x40 requires a resolved 2- or 3-string arity")
+        return [r.shared_string(f"{path}[{i}]") for i in range(state_arity)]
+    if code == 512:
         return [r.shared_string(f"{path}[{i}]") for i in range(3)]
     if code == 128:
         count = r.u8(path + ".component_count")
@@ -358,39 +369,161 @@ def decode_value(r: Reader, param: Param, schema: Schema, path: str) -> Any:
         return {"value": r.u32(path + ".value"), "name": r.shared_string(path + ".name")}
     raise ClaraError(f"{path}: unsupported Clara type code 0x{code:X}")
 
+def _reader_at(r: Reader, pos: int) -> Reader:
+    """Return a reader over the same bounded entity body at *pos*."""
+    clone = Reader(r.data, base=r.base, label=r.label)
+    clone.pos = pos
+    return clone
+
+
+def _state_tuple_arity_hint(schema: Schema) -> int | None:
+    """Recognize the two shipped Minion Rush Clara-v12 state dialects.
+
+    In the older iOS schema ``MinionCostume`` itself owns a ``StateMachine``
+    property of Clara type 0x0040 and state tuples are two strings.  In the
+    later Windows/Android schema that property moved out of ``MinionCostume``
+    and type-0x0040 states are three strings.  This structural signature avoids
+    expensive per-value backtracking on the known game schemas; unfamiliar
+    schemas still use the bounded structural fallback below.
+    """
+    cls = schema.by_name.get("MinionCostume")
+    if cls is None:
+        return None
+    for prop in cls.properties:
+        if prop.name == "StateMachine":
+            param = schema.params[prop.type_index]
+            if param.type_code == 64:
+                return 2
+    # Both known Windows and Android designlib schemas have MinionCostume but
+    # no StateMachine property there, and use the three-string state layout.
+    if any(param.type_code == 64 and param.name == "state" for param in schema.params):
+        return 3
+    return None
+
+
+def _decode_property_from(
+    r: Reader,
+    cls: ClassDef,
+    schema: Schema,
+    path: str,
+    prop_index: int,
+) -> tuple[list[dict[str, Any]], int]:
+    """Decode properties recursively so Clara 0x0040 can be disambiguated safely.
+
+    Minion Rush has at least two Clara-v12 schema dialects in shipped data:
+    older iOS designlibs serialize type 0x0040 (``state``) as two String16
+    values, while later Windows/Android designlibs serialize it as three.
+    The schema carries the same type code in both cases and does not encode the
+    tuple width explicitly.
+
+    For 0x0040 properties we therefore try both legal widths and accept only a
+    branch that allows the *entire remaining bounded entity body* to parse
+    according to its schema.  This is structural validation, not a string-value
+    heuristic, and it also means malformed/ambiguous input is rejected rather
+    than guessed.
+    """
+    if prop_index == len(cls.properties):
+        if r.remaining():
+            raise ClaraError(
+                f"{path}: {r.remaining()} trailing entity-body bytes after schema properties"
+            )
+        return [], r.pos
+
+    pdef = cls.properties[prop_index]
+    param = schema.params[pdef.type_index]
+    n, named = read_array_header(r, path + "." + pdef.name)
+    after_header = r.pos
+
+    hint = _state_tuple_arity_hint(schema) if param.type_code == 64 else None
+    if param.type_code == 64 and hint is not None:
+        # Known Minion Rush schema dialect: try the structural signature first.
+        # If it fails, retry the alternate width so a future nearby schema
+        # revision is not rejected solely because the hint changed.
+        arities: tuple[int | None, ...] = (hint, 3 if hint == 2 else 2)
+    else:
+        arities = (2, 3) if param.type_code == 64 else (None,)
+    successes: list[tuple[dict[str, Any], list[dict[str, Any]], int, int | None]] = []
+    errors: list[ClaraError] = []
+
+    for arity_index, arity in enumerate(arities):
+        rr = _reader_at(r, after_header)
+        elements: list[dict[str, Any]] = []
+        try:
+            for i in range(n):
+                ename = rr.shared_string(
+                    f"{path}.{pdef.name}[{i}].element_name"
+                ) if named else None
+                value_start = rr.pos
+                value = decode_value(
+                    rr,
+                    param,
+                    schema,
+                    f"{path}.{pdef.name}[{i}]",
+                    state_arity=arity,
+                )
+                value_raw = rr.data[value_start:rr.pos]
+                item: dict[str, Any] = {
+                    "value": value,
+                    "original_value": copy.deepcopy(value),
+                    "raw_base64": b64e(value_raw),
+                }
+                if named:
+                    item["name"] = ename
+                    item["original_name"] = ename
+                elements.append(item)
+
+            rest, end_pos = _decode_property_from(
+                rr, cls, schema, path, prop_index + 1
+            )
+            prop_item = {
+                "name": pdef.name,
+                "type_index": pdef.type_index,
+                "type_code": param.type_code,
+                "subtype": param.subtype,
+                "named_elements": named,
+                "elements": elements,
+            }
+            successes.append((prop_item, rest, end_pos, arity))
+            # A recognized shipped schema signature is authoritative once its
+            # preferred width parses the complete bounded entity.  Do not also
+            # traverse the alternate branch on every state property.
+            if param.type_code == 64 and hint is not None and arity_index == 0:
+                break
+        except ClaraError as exc:
+            errors.append(exc)
+
+    if not successes:
+        # Prefer the error from the normal/later three-string interpretation for
+        # 0x0040 when both branches fail, because that preserves the most useful
+        # historical diagnostic on Windows/Android malformed data.
+        if errors:
+            raise errors[-1]
+        raise ClaraError(f"{path}.{pdef.name}: unable to decode property")
+
+    if len(successes) > 1:
+        # Both tuple widths consuming the exact same bounded entity is not a
+        # format situation observed in Minion Rush data; guessing would make an
+        # edited re-encode unsafe.
+        if param.type_code == 64:
+            raise ClaraError(
+                f"{path}.{pdef.name}: ambiguous Clara type 0x40 tuple width; "
+                "both 2- and 3-string layouts parse structurally"
+            )
+        raise ClaraError(f"{path}.{pdef.name}: ambiguous property encoding")
+
+    prop_item, rest, end_pos, _arity = successes[0]
+    return [prop_item, *rest], end_pos
+
+
 def decode_entity_payload(r: Reader, cls: ClassDef, schema: Schema,
                           class_name: str, name: str, path: str) -> dict[str, Any]:
     preamble = parse_preamble(r)
     count = r.u16(path + ".property_count")
     if count != len(cls.properties):
         raise ClaraError(f"{path}: property count {count} != schema count {len(cls.properties)}")
-    props: list[dict[str, Any]] = []
-    for prop in cls.properties:
-        param = schema.params[prop.type_index]
-        n, named = read_array_header(r, path + "." + prop.name)
-        elements = []
-        for i in range(n):
-            ename = r.shared_string(f"{path}.{prop.name}[{i}].element_name") if named else None
-            value_start = r.pos
-            value = decode_value(r, param, schema, f"{path}.{prop.name}[{i}]")
-            value_raw = r.data[value_start:r.pos]
-            item = {
-                "value": value,
-                "original_value": copy.deepcopy(value),
-                "raw_base64": b64e(value_raw),
-            }
-            if named:
-                item["name"] = ename
-                item["original_name"] = ename
-            elements.append(item)
-        props.append({
-            "name": prop.name,
-            "type_index": prop.type_index,
-            "type_code": param.type_code,
-            "subtype": param.subtype,
-            "named_elements": named,
-            "elements": elements,
-        })
+
+    props, end_pos = _decode_property_from(r, cls, schema, path, 0)
+    r.pos = end_pos
     return {"class": class_name, "name": name, "preamble_hex": preamble.hex(), "properties": props}
 
 def schema_json(schema: Schema) -> dict[str, Any]:
@@ -475,7 +608,11 @@ def encode_value(value: Any, param: Param, schema: Schema, path: str) -> bytes:
             body = encode_entity_body(value, schema, path)
             class_name = value.get("class")
         return b"\x01" + bytes([ENTITY_TAG]) + pack_string(class_name, path + ".class") + struct.pack("<I", len(body)) + body
-    if code in (64, 512):
+    if code == 64:
+        if not isinstance(value, list) or len(value) not in (2, 3):
+            raise ClaraError(f"{path} must be a two- or three-string list")
+        return b"".join(pack_string(x, f"{path}[{i}]") for i, x in enumerate(value))
+    if code == 512:
         if not isinstance(value, list) or len(value) != 3:
             raise ClaraError(f"{path} must be a three-string list")
         return b"".join(pack_string(x, f"{path}[{i}]") for i, x in enumerate(value))
@@ -519,6 +656,22 @@ def validate_entity_shape(item: Any, schema: Schema, path: str) -> tuple[ClassDe
     return cls, props
 
 def decode_single_raw(raw: bytes, param: Param, schema: Schema, path: str) -> Any:
+    if param.type_code == 64:
+        successes: list[Any] = []
+        for arity in (2, 3):
+            r = Reader(raw, label=path)
+            try:
+                value = decode_value(r, param, schema, path, state_arity=arity)
+                if not r.remaining():
+                    successes.append(value)
+            except ClaraError:
+                pass
+        if len(successes) == 1:
+            return successes[0]
+        if len(successes) > 1:
+            raise ClaraError(f"{path}: ambiguous raw Clara type 0x40 tuple width")
+        raise ClaraError(f"{path}: raw Clara type 0x40 is neither a 2- nor 3-string tuple")
+
     r = Reader(raw, label=path)
     value = decode_value(r, param, schema, path)
     if r.remaining():
