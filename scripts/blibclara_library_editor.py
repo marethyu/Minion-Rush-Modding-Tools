@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Clara BLIB Editor v18 — schema-aware editing for ``.blibclara`` files.
+"""Clara BLIB Editor v20 — per-library schema-aware editing for ``.blibclara`` files.
 
 SCOPE
 =====
@@ -12,7 +12,7 @@ out instead of duplicated:
 * ``bclara_editor.py`` owns the single executable-faithful
   Clara_movie implementation;
 * this module owns only the BLIBCLARA container, recursive folder tree,
-  original-backed clean-JSON merge logic, and BLIB-specific preservation policy.
+  original-backed per-library JSON merge logic, and BLIB-specific preservation policy.
 
 DEPENDENCIES
 ============
@@ -20,7 +20,7 @@ Keep these three files importable from the same directory or ``PYTHONPATH``::
 
     clara_common.py
     bclara_editor.py
-    blibclara_editor.py
+    blibclara_library_editor.py
 
 BLIBCLARA ON-DISK FORMAT
 ========================
@@ -83,9 +83,8 @@ are runtime allocation hints in ``f/e/g/m/u`` order. Larger original capacities
 are preserved and raised only when an edit requires more immediate records.
 
 The executable also reads each library root tag without checking that it is
-``'f'`` before entering the folder loader. The full manifest preserves that byte;
-the clean editable JSON treats it as preservation metadata and restores it from
-the exact original binary during encode.
+``'f'`` before entering the folder loader. Editable JSON omits that byte as
+preservation metadata; encode restores it from the exact original binary.
 
 SCHEMA AND ENTITIES
 ===================
@@ -95,9 +94,9 @@ Known classes are decoded by schema class/property name through
 named/unnamed property arrays, nested entities, the common entity preamble, and
 exact reuse of unchanged serialized property values.
 
-The embedded schema is informational and read-only in editable JSON. It is
-validated against the source but never regenerated. Classes absent from the
-embedded schema are kept as opaque size-bounded bodies.
+The embedded schema is read-only and is not copied into per-library editable JSON.
+Encode always obtains it from the exact original BLIBCLARA. Classes absent from
+the embedded schema are kept as opaque size-bounded bodies.
 
 MOVIES
 ======
@@ -110,43 +109,47 @@ terminators, and unknown key-mask bits that the runtime ignores.
 
 EDITING MODEL
 =============
-``decode`` writes clean user-facing JSON. Preservation-only details such as the
-exact schema bytes, entity preambles, original encoded property values, opaque
-entity bodies, folder allocation capacities, library root-tag bytes, and
-executable-visible movie preservation metadata are omitted from that JSON.
+``decode`` requires one library name and writes JSON for that library only. No
+other libraries or embedded-schema dump are included. Preservation-only details
+such as entity preambles, original encoded property values, opaque entity bodies,
+folder allocation capacities, library root-tag bytes, and executable-visible movie
+metadata are omitted from the editable JSON.
 
-``encode`` therefore requires the exact original BLIBCLARA identified by
-``source_sha256``. The editor decodes that original again, restores preservation
-metadata, merges only the requested clean-JSON edits, rebuilds the container,
-then reparses the result and compares it semantically with the requested tree.
+``encode`` reads the target library name from the JSON, requires the exact original
+BLIBCLARA identified by ``source_sha256``, restores preservation metadata from that
+original, replaces only the named library, rebuilds the complete container, then
+reparses and semantically verifies the complete result. All other libraries come
+unchanged from the original input.
 
-There is deliberately no backward-compatibility layer for older editable JSON
-versions; only the current format is accepted.
+There is deliberately no backward-compatibility layer for older whole-file or
+per-library editable JSON formats; only the current format is accepted.
 
 COMMANDS
 ========
-    python blibclara_editor.py decode INPUT.blibclara OUTPUT.json
-    python blibclara_editor.py encode ORIGINAL.blibclara EDITED.json OUTPUT.blibclara
-    python blibclara_editor.py verify INPUT.blibclara
-    python blibclara_editor.py roundtrip INPUT.blibclara OUTPUT.blibclara
+    python blibclara_library_editor.py decode INPUT.blibclara LIBRARY OUTPUT.json
+    python blibclara_library_editor.py encode ORIGINAL.blibclara EDITED.json OUTPUT.blibclara
+    python blibclara_library_editor.py verify INPUT.blibclara
+    python blibclara_library_editor.py roundtrip INPUT.blibclara OUTPUT.blibclara
+    python blibclara_library_editor.py list-libraries INPUT.blibclara
 
 KNOWN LIMITATIONS
 =================
 * Only the recovered Minion Rush Clara marker ``0x1AAA`` and version ``12`` plus
   the recovered property type dispatch are supported. Unknown versions or type
   codes are rejected.
-* The embedded schema is read-only. The editor cannot add/remove schema classes,
-  change class property definitions, or synthesize a new schema.
+* The embedded schema is read-only and omitted from editable JSON. The editor
+  cannot add/remove schema classes, change class property definitions, or
+  synthesize a new schema.
 * Unknown-class top-level or nested entities are preserved losslessly but are
-  opaque/read-only in the clean-JSON workflow; they cannot safely be newly
+  opaque/read-only in the per-library JSON workflow; they cannot safely be newly
   created, renamed, or moved.
 * Creating or moving a known-class entity requires a usable same-class entity
   preamble template from the original file. If no template exists, or existing
   templates disagree and the choice is ambiguous, the edit fails closed.
 * The common entity preamble is structurally understood but not fully named
   semantically, which is why original-backed metadata remains necessary.
-* Encoding requires the exact original BLIBCLARA. A clean JSON file is not a
-  self-contained replacement for its source binary.
+* Encoding requires the exact original BLIBCLARA. A per-library JSON file is not
+  a self-contained replacement for its source binary.
 * Movie support inherits the executable-faithful BCLARA movie limitations:
   several track-kind meanings, the movie ``flag``, and payloads ``0x08``/``0x10``
   remain partly unresolved even though their recovered binary grammar is supported.
@@ -156,8 +159,8 @@ KNOWN LIMITATIONS
 * Structural validation cannot prove game-level reference integrity, uniqueness
   constraints, class-specific invariants, or dependencies between libraries,
   BCLARA files, scripts, graphs, or other resources.
-* Older editable JSON format versions are intentionally rejected rather than
-  translated or silently accepted.
+* Older whole-file and per-library editable JSON formats are intentionally
+  rejected rather than translated or silently accepted.
 
 SAFETY MODEL
 ============
@@ -204,7 +207,6 @@ semantic_equal = clara.semantic_equal
 encode_envelope = clara.encode_envelope
 
 ENTITY_TAG = clara.ENTITY_TAG
-FORMAT_VERSION = 13
 CLARA_MARKER = bclara_codec.MARKER
 CLARA_VERSION = bclara_codec.VERSION
 RECORD_KIND_ORDER = bclara_codec.RECORD_KIND_ORDER
@@ -378,17 +380,6 @@ def flatten_entities(folder: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-
-
-
-
-
-
-
-
-
-
-
 def decode_file(data: bytes, source_name: str) -> dict[str, Any]:
     schema = parse_schema(data)
     r = Reader(data[schema.end:], base=schema.end, label=source_name)
@@ -423,32 +414,14 @@ def decode_file(data: bytes, source_name: str) -> dict[str, Any]:
     }
 
 
-
-
-
-
-
-
-
-
-
-
-def json_semantic(value: Any) -> Any:
+def semantic_view(value: Any) -> Any:
     """Remove provenance-only fields for post-encode semantic comparison."""
     if isinstance(value, list):
-        return [json_semantic(x) for x in value]
+        return [semantic_view(x) for x in value]
     if isinstance(value, dict):
-        return {k: json_semantic(v) for k, v in value.items()
+        return {k: semantic_view(v) for k, v in value.items()
                 if k not in {"original_value", "original_name", "raw_base64"}}
     return value
-
-
-
-
-
-
-
-
 
 
 def encode_manifest(original: bytes, manifest: dict[str, Any]) -> bytes:
@@ -483,8 +456,8 @@ def encode_manifest(original: bytes, manifest: dict[str, Any]) -> bytes:
         out += bytes([root_tag]) + encode_folder(lib.get("root_folder"), schema, path + ".root_folder")
     rebuilt = bytes(out)
     check = decode_file(rebuilt, "verification.blibclara")
-    expected = json_semantic(libraries)
-    actual = json_semantic(check["libraries"])
+    expected = semantic_view(libraries)
+    actual = semantic_view(check["libraries"])
     def strip_capacities(v: Any) -> Any:
         if isinstance(v, list):
             return [strip_capacities(x) for x in v]
@@ -492,11 +465,12 @@ def encode_manifest(original: bytes, manifest: dict[str, Any]) -> bytes:
             return {k: strip_capacities(x) for k, x in v.items() if k != "allocation_counts"}
         return v
     if not semantic_equal(strip_capacities(expected), strip_capacities(actual)):
-        raise CodecError("post-encode semantic verification failed: decoded library tree differs from requested JSON")
+        raise CodecError("post-encode semantic verification failed: decoded library tree differs from requested data")
     return rebuilt
 
 
-USER_FORMAT = "generic-clara-blib-editable"
+USER_FORMAT = "generic-clara-blib-library-editable"
+EDITABLE_FORMAT_VERSION = 1
 
 
 def strip_internal_fields(value: Any) -> Any:
@@ -512,9 +486,8 @@ def strip_internal_fields(value: Any) -> Any:
     }
     out = {k: strip_internal_fields(v) for k, v in value.items() if k not in omitted}
 
-    # These fields are specific to executable-visible, semantically inert movie
-    # encodings. Keep clean JSON focused on editable movie meaning; enrich_movie()
-    # restores them from the exact original binary during encode.
+    # These fields are executable-visible but semantically inert encodings.
+    # enrich_movie() restores them from the exact original during encode.
     if "keys" in value and "type" in value:
         out.pop("terminator", None)
         out.pop("raw_type_byte", None)
@@ -524,36 +497,76 @@ def strip_internal_fields(value: Any) -> Any:
     return out
 
 
-def make_editable_manifest(full: dict[str, Any]) -> dict[str, Any]:
-    libraries = strip_internal_fields(full["libraries"])
-    for lib in libraries:
-        if isinstance(lib, dict):
-            lib.pop("marker", None)
-            lib.pop("version", None)
-            lib.pop("root_tag", None)
+def find_library(libraries: Any, name: str) -> tuple[int, dict[str, Any]]:
+    if not isinstance(libraries, list):
+        raise CodecError("decoded BLIBCLARA libraries are invalid")
+    matches = [
+        (i, library)
+        for i, library in enumerate(libraries)
+        if isinstance(library, dict) and library.get("name") == name
+    ]
+    if not matches:
+        raise CodecError(f"library {name!r} not found; use list-libraries to see valid names")
+    if len(matches) != 1:
+        raise CodecError(f"library name {name!r} is ambiguous ({len(matches)} matches)")
+    return matches[0]
+
+
+def make_editable_library(full: dict[str, Any], library_name: str) -> dict[str, Any]:
+    _, source_library = find_library(full.get("libraries"), library_name)
+    library = strip_internal_fields(source_library)
+    if not isinstance(library, dict):
+        raise CodecError(f"library {library_name!r} decoded to an invalid object")
+    library.pop("marker", None)
+    library.pop("version", None)
+    library.pop("root_tag", None)
     return {
         "format": USER_FORMAT,
-        "format_version": FORMAT_VERSION,
+        "format_version": EDITABLE_FORMAT_VERSION,
         "source_sha256": full["source_sha256"],
-        "schema": strip_internal_fields(full["schema"]),
-        "libraries": libraries,
+        "library": library,
     }
 
 
 def load_editable(path: Path) -> dict[str, Any]:
     obj = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(obj, dict) or obj.get("format") != USER_FORMAT or obj.get("format_version") != FORMAT_VERSION:
+    if (not isinstance(obj, dict) or obj.get("format") != USER_FORMAT or
+            obj.get("format_version") != EDITABLE_FORMAT_VERSION):
         raise CodecError("unsupported editable JSON format/version")
-    expected_fields = {"format", "format_version", "source_sha256", "schema", "libraries"}
+
+    expected_fields = {"format", "format_version", "source_sha256", "library"}
     extra = set(obj) - expected_fields
     if extra:
         raise CodecError(f"editable JSON has unsupported top-level fields: {', '.join(sorted(extra))}")
+    missing = expected_fields - set(obj)
+    if missing:
+        raise CodecError(f"editable JSON is missing top-level fields: {', '.join(sorted(missing))}")
+
     source_hash = obj.get("source_sha256")
     if (not isinstance(source_hash, str) or len(source_hash) != 64 or
             any(ch not in "0123456789abcdef" for ch in source_hash)):
         raise CodecError("editable JSON source_sha256 must be a lowercase SHA-256 hex string")
-    if not isinstance(obj.get("libraries"), list):
-        raise CodecError("editable JSON libraries must be a list")
+
+    library = obj.get("library")
+    if not isinstance(library, dict):
+        raise CodecError("editable JSON library must be an object")
+    allowed_library_fields = {"name", "root_folder"}
+    extra_library_fields = set(library) - allowed_library_fields
+    if extra_library_fields:
+        raise CodecError(
+            "editable JSON library has unsupported fields: "
+            + ", ".join(sorted(extra_library_fields))
+        )
+    missing_library_fields = allowed_library_fields - set(library)
+    if missing_library_fields:
+        raise CodecError(
+            "editable JSON library is missing fields: "
+            + ", ".join(sorted(missing_library_fields))
+        )
+    if not isinstance(library.get("name"), str):
+        raise CodecError("editable JSON library.name must be a string")
+    if not isinstance(library.get("root_folder"), dict):
+        raise CodecError("editable JSON library.root_folder must be an object")
     return obj
 
 
@@ -667,7 +680,7 @@ def enrich_entity(edit: dict[str, Any], positional: Any,
 
 
 def enrich_movie(edit: dict[str, Any], positional: Any, path: str) -> dict[str, Any]:
-    """Restore movie preservation metadata omitted from clean editable JSON."""
+    """Restore movie preservation metadata omitted from per-library editable JSON."""
     if not isinstance(edit, dict) or edit.get("kind") != "movie":
         raise CodecError(f"{path} must be a movie object")
     out = copy.deepcopy(edit)
@@ -755,7 +768,9 @@ def enrich_folder(edit: dict[str, Any], base: Any,
     return out
 
 
-def merge_editable_with_original(editable: dict[str, Any], original_full: dict[str, Any]) -> dict[str, Any]:
+def merge_editable_with_original(
+    editable: dict[str, Any], original_full: dict[str, Any]
+) -> tuple[dict[str, Any], str]:
     expected_hash = editable.get("source_sha256")
     actual_hash = original_full.get("source_sha256")
     if expected_hash != actual_hash:
@@ -763,40 +778,28 @@ def merge_editable_with_original(editable: dict[str, Any], original_full: dict[s
             "editable JSON was decoded from a different original input file: "
             f"expected {expected_hash}, got {actual_hash}"
         )
+
+    edit_library = editable["library"]
+    library_name = edit_library["name"]
+    library_index, base = find_library(original_full.get("libraries"), library_name)
+
     full = copy.deepcopy(original_full)
-    expected_schema = strip_internal_fields(original_full["schema"])
-    if editable.get("schema") != expected_schema:
-        raise CodecError("editable schema is read-only and differs from the original BLIBCLARA schema")
-    exact, by_class = build_entity_indexes(full)
-    elibs = editable.get("libraries")
-    blibs = full.get("libraries")
-    if not isinstance(elibs, list) or len(elibs) > 0xFFFF:
-        raise CodecError("editable libraries must be a list of at most 65535 entries")
-    merged_libs: list[dict[str, Any]] = []
-    for i, lib in enumerate(elibs):
-        if not isinstance(lib, dict):
-            raise CodecError(f"libraries[{i}] must be an object")
-        base = blibs[i] if isinstance(blibs, list) and i < len(blibs) else None
-        out = copy.deepcopy(lib)
-        # Marker/version are format contracts. root_tag is loader-visible but not
-        # semantically editable in clean JSON, so preserve the original byte.
-        out["marker"] = CLARA_MARKER
-        out["version"] = CLARA_VERSION
-        out["root_tag"] = (
-            base.get("root_tag")
-            if isinstance(base, dict) and isinstance(base.get("root_tag"), int)
-            else ord("f")
-        )
-        out["root_folder"] = enrich_folder(
-            out.get("root_folder"), base.get("root_folder") if isinstance(base, dict) else None,
-            exact, by_class, f"libraries[{i}].root_folder"
-        )
-        merged_libs.append(out)
-    full["libraries"] = merged_libs
-    full["entities"] = []
-    for lib in merged_libs:
-        full["entities"].extend(flatten_entities(lib["root_folder"]))
-    return full
+    exact, by_class = build_entity_indexes(original_full)
+
+    replacement = copy.deepcopy(edit_library)
+    replacement["marker"] = CLARA_MARKER
+    replacement["version"] = CLARA_VERSION
+    replacement["root_tag"] = base["root_tag"]
+    replacement["root_folder"] = enrich_folder(
+        replacement["root_folder"],
+        base["root_folder"],
+        exact,
+        by_class,
+        f"library[{library_name!r}].root_folder",
+    )
+
+    full["libraries"][library_index] = replacement
+    return full, library_name
 
 
 def write_json(path: Path, value: Any) -> None:
@@ -826,22 +829,24 @@ def count_nested_entities(entities: list[dict[str, Any]]) -> int:
 def cmd_decode(args: argparse.Namespace) -> None:
     data = args.input.read_bytes()
     full = decode_file(data, args.input.name)
-    editable = make_editable_manifest(full)
+    editable = make_editable_library(full, args.library)
     write_json(args.output, editable)
-    print(
-        f"Decoded {len(full['libraries'])} libraries and {len(full['entities'])} entities "
-        f"to {args.output}"
-    )
+    _, library = find_library(full["libraries"], args.library)
+    entity_count = len(flatten_entities(library["root_folder"]))
+    print(f"Decoded library {args.library!r} with {entity_count} top-level entities to {args.output}")
 
 
 def cmd_encode(args: argparse.Namespace) -> None:
     original = args.input.read_bytes()
     editable = load_editable(args.manifest)
     original_full = decode_file(original, args.input.name)
-    merged = merge_editable_with_original(editable, original_full)
+    merged, library_name = merge_editable_with_original(editable, original_full)
     rebuilt = encode_manifest(original, merged)
     args.output.write_bytes(rebuilt)
-    print(f"Encoded {len(rebuilt)} bytes to {args.output} using original {args.input}")
+    print(
+        f"Encoded library {library_name!r} into {args.output} "
+        f"using original {args.input} ({len(rebuilt)} bytes)"
+    )
 
 
 def cmd_verify(args: argparse.Namespace) -> None:
@@ -849,6 +854,13 @@ def cmd_verify(args: argparse.Namespace) -> None:
     manifest = decode_file(data, args.input.name)
     nested = count_nested_entities(manifest["entities"])
     print(f"Verified {args.input}: {len(manifest['entities'])} top-level, {nested} nested entities")
+
+
+def cmd_list_libraries(args: argparse.Namespace) -> None:
+    """Print BLIBCLARA library names in on-disk order, one per line."""
+    manifest = decode_file(args.input.read_bytes(), args.input.name)
+    for library in manifest["libraries"]:
+        print(library["name"])
 
 
 def cmd_roundtrip(args: argparse.Namespace) -> None:
@@ -861,20 +873,19 @@ def cmd_roundtrip(args: argparse.Namespace) -> None:
     print(f"Byte-identical round-trip written to {args.output}")
 
 
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Schema-aware recursive editor for Minion Rush Clara v12 .blibclara files"
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    command = sub.add_parser("decode", help="decode one .blibclara to editable JSON")
+    command = sub.add_parser("decode", help="decode one named library to editable JSON")
     command.add_argument("input", type=Path)
+    command.add_argument("library", help="exact BLIBCLARA library name")
     command.add_argument("output", type=Path)
     command.set_defaults(func=cmd_decode)
 
-    command = sub.add_parser("encode", help="encode edited JSON using its exact original .blibclara")
+    command = sub.add_parser("encode", help="replace the library named by edited JSON in its exact original .blibclara")
     command.add_argument("input", type=Path)
     command.add_argument("manifest", type=Path)
     command.add_argument("output", type=Path)
@@ -888,6 +899,10 @@ def build_parser() -> argparse.ArgumentParser:
     command.add_argument("input", type=Path)
     command.add_argument("output", type=Path)
     command.set_defaults(func=cmd_roundtrip)
+
+    command = sub.add_parser("list-libraries", help="print all library names in a .blibclara file")
+    command.add_argument("input", type=Path)
+    command.set_defaults(func=cmd_list_libraries)
     return parser
 
 
