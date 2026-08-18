@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Minion Rush English localization JSON editor.
+Minion Rush localization JSON editor.
 
 Supported Minion Rush Babel formats
 ====================================
@@ -17,6 +17,32 @@ Supported Minion Rush Babel formats
 
 The Babel version is detected from the file contents; Android acceptance is
 then restricted to a raw input whose filename ends in ``.texts``.
+
+Language selection
+==================
+
+``decode`` accepts an optional language selector:
+
+    --language LANGUAGE
+
+If omitted, the selected language is ``EN``. Language matching is
+case-insensitive and the canonical language name stored in the Babel file is
+written to JSON. The supplied files use these language names:
+
+    RU, DE, KO, EN, AR, ZH, ZH_HANT, ES, JA, FR, TH, ID, TR, IT, PT
+
+Examples:
+
+    python text_bin_english_json_editor.py decode texts.texts english.json
+    python text_bin_english_json_editor.py decode texts.texts french.json --language FR
+    python text_bin_english_json_editor.py decode text.bin japanese.json --language JA
+
+``encode`` reads the selected language from the JSON, so it does not need a
+``--language`` argument. Value edits and ``add`` entries apply only to the
+JSON-selected language. On Windows, ``delete`` also applies only to that
+selected language. On Android, ``delete`` remains a global key operation
+because the deleted symbolic key is also removed from ``texts.texts.keys`` and
+therefore must be removed from every language block.
 
 Android key dictionary requirement
 ==================================
@@ -47,15 +73,16 @@ keys.
 
 The JSON contains three editing areas:
 
-    "strings" : edit English values for the original keys
-    "add"     : {"NEW_KEY": "English value"}
+    "strings" : edit values for the selected language's original keys
+    "add"     : {"NEW_KEY": "selected-language value"}
     "delete"  : ["KEY_TO_DELETE"]
 
 For Android encoding:
 
-* value edits under ``strings`` affect English only;
+* value edits under ``strings`` affect only the JSON-selected language;
 * ``delete`` removes that key from every language and from the rebuilt key table;
-* ``add`` creates a new key-table entry and an English localization entry only.
+* ``add`` creates a new key-table entry and a localization entry only in the
+  JSON-selected language.
 
 New Android key hashes are ``CRC32(symbolic UTF-8 key)``. The encoder rejects
 symbolic-name duplicates and CRC32 collisions.
@@ -73,47 +100,47 @@ Windows behavior
 ================
 
 Windows does not use an external key dictionary. Existing ``strings``, ``add``,
-and ``delete`` behavior remains English-only.
+and ``delete`` operations apply to the JSON-selected language only.
 
 Commands
 ========
 
 Windows (``--keys`` not required):
 
-    python texts_english_json_editor.py decode text.bin english_strings.json
-    python texts_english_json_editor.py decode texts.texts english_strings.json
-    python texts_english_json_editor.py encode text.bin english_strings.json text_modified.bin
-    python texts_english_json_editor.py encode texts.texts english_strings.json texts_modified.texts
-    python texts_english_json_editor.py verify text.bin
-    python texts_english_json_editor.py verify texts.texts
+    python text_bin_english_json_editor.py decode text.bin strings.json [--language LANGUAGE]
+    python text_bin_english_json_editor.py decode texts.texts strings.json [--language LANGUAGE]
+    python text_bin_english_json_editor.py encode text.bin strings.json text_modified.bin
+    python text_bin_english_json_editor.py encode texts.texts strings.json texts_modified.texts
+    python text_bin_english_json_editor.py verify text.bin
+    python text_bin_english_json_editor.py verify texts.texts
 
 Android (raw ``.texts`` only):
 
-    python texts_english_json_editor.py decode texts.texts english_strings.json --keys texts.texts.keys
-    python texts_english_json_editor.py encode texts.texts english_strings.json texts_modified.texts --keys texts.texts.keys
-    python texts_english_json_editor.py verify texts.texts --keys texts.texts.keys
+    python text_bin_english_json_editor.py decode texts.texts strings.json --keys texts.texts.keys [--language LANGUAGE]
+    python text_bin_english_json_editor.py encode texts.texts strings.json texts_modified.texts --keys texts.texts.keys
+    python text_bin_english_json_editor.py verify texts.texts --keys texts.texts.keys
 
 For Android, ``--keys`` may be omitted when the default sibling
 ``INPUT.texts.keys`` exists.
 
-
-JSON format v8 records the source Babel/container format and exposes symbolic
-string localization keys. Re-run decode with this editor before editing JSON
-created by older JSON-format versions.
+JSON format v9 records the selected language plus the source Babel/container
+format and exposes symbolic string localization keys. Re-run decode with this
+editor before editing JSON created by older JSON-format versions.
 
 Safety / preservation behavior
 ==============================
 
 * validates ZIP CRCs for supported Windows ZIP input;
 * validates Babel bounds and UTF-8;
+* validates the selected language against the actual Babel language list;
 * validates Android key dictionaries and CRC32(name) values;
 * verifies every stored Android localization hash can be resolved;
 * rejects duplicate symbolic names and CRC32 collisions;
 * preserves all language footers byte-for-byte;
 * preserves Windows ZIP/raw representation;
 * Android always remains raw ``.texts`` and never creates a ZIP container;
-* with no Android structural key edits, non-English blocks remain byte-for-byte
-  unchanged;
+* with no Android global deletion, all unselected language blocks remain
+  byte-for-byte unchanged;
 * Android delete removes the selected key from every language;
 * validates both rebuilt Android localization bytes and rebuilt key-table bytes
   before writing either output;
@@ -178,10 +205,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-FORMAT_NAME = "minion-rush-textbin-english-editable"
-FORMAT_VERSION = 8
+FORMAT_NAME = "minion-rush-localization-editable"
+FORMAT_VERSION = 9
 INNER_MEMBER = "text/texts.texts"
-TARGET_LANGUAGE = "EN"
+DEFAULT_LANGUAGE = "EN"
 SOURCE_RAW = "raw"
 SOURCE_ZIP = "zip"
 KEY_MODE_BY_BABEL_VERSION = {1: "string", 2: "hash32"}
@@ -629,20 +656,36 @@ def parse_babel(data: bytes) -> BabelFile:
 
 @dataclass(frozen=True)
 class EditPlan:
+    language: str
     strings: dict[str, str]
     additions: dict[str, str]
     deletions: tuple[str, ...]
     delete_set: frozenset[str]
 
 
+def resolve_language(babel: BabelFile, requested: object) -> str:
+    if not isinstance(requested, str) or not requested.strip():
+        raise TextBinError("Language must be a non-empty string")
+    wanted = requested.strip().casefold()
+    matches = [language.name for language in babel.languages if language.name.casefold() == wanted]
+    if len(matches) == 1:
+        return matches[0]
+    available = ", ".join(language.name for language in babel.languages)
+    raise TextBinError(
+        f"Unknown language {requested!r}. Available languages: {available}"
+    )
+
+
 def validate_edit_plan(
     babel: BabelFile,
     keys: AndroidKeyTable | None,
+    language_name: str,
     edited: object,
     additions: object,
     deletions: object,
 ) -> EditPlan:
-    en = babel.language(TARGET_LANGUAGE)
+    language_name = resolve_language(babel, language_name)
+    selected = babel.language(language_name)
 
     if not isinstance(edited, dict):
         raise TextBinError("JSON 'strings' must be an object mapping keys to text")
@@ -669,14 +712,19 @@ def validate_edit_plan(
             )
         checked_additions[key] = value
 
-    checked_deletions: list[str] = []
-    for index, key in enumerate(deletions):
-        checked_deletions.append(validate_symbolic_key(key, f"delete[{index}]"))
+    checked_deletions = [
+        validate_symbolic_key(key, f"delete[{index}]")
+        for index, key in enumerate(deletions)
+    ]
 
-    original_order = [entry_symbolic_key(babel, entry, keys) for entry in en.entries]
+    original_order = [
+        entry_symbolic_key(babel, entry, keys) for entry in selected.entries
+    ]
     original_keys = set(original_order)
     if len(original_keys) != len(original_order):
-        raise TextBinError("Resolved English symbolic keys are not unique")
+        raise TextBinError(
+            f"Resolved symbolic keys are not unique in language {language_name}"
+        )
 
     edited_keys = set(checked_edited)
     missing = sorted(original_keys - edited_keys)
@@ -690,17 +738,17 @@ def validate_edit_plan(
                 f"contains {len(extra)} non-original keys, e.g. {extra[:5]!r}"
             )
         raise TextBinError(
-            "JSON 'strings' must contain exactly the original English key set; "
-            "use 'add' and 'delete' for structural changes: "
-            + "; ".join(details)
+            f"JSON 'strings' must contain exactly the original {language_name} key set; "
+            "use 'add' and 'delete' for structural changes: " + "; ".join(details)
         )
 
     addition_keys = set(checked_additions)
     existing_additions = sorted(addition_keys & original_keys)
     if existing_additions:
         raise TextBinError(
-            f"JSON 'add' contains {len(existing_additions)} keys that already exist, "
-            f"e.g. {existing_additions[:5]!r}; modify their values under 'strings' instead"
+            f"JSON 'add' contains {len(existing_additions)} keys already present in "
+            f"{language_name}, e.g. {existing_additions[:5]!r}; modify their values "
+            "under 'strings' instead"
         )
 
     delete_set = set(checked_deletions)
@@ -709,8 +757,8 @@ def validate_edit_plan(
     unknown_deletions = sorted(delete_set - original_keys)
     if unknown_deletions:
         raise TextBinError(
-            f"JSON 'delete' contains {len(unknown_deletions)} unknown keys, "
-            f"e.g. {unknown_deletions[:5]!r}"
+            f"JSON 'delete' contains {len(unknown_deletions)} keys not present in "
+            f"{language_name}, e.g. {unknown_deletions[:5]!r}"
         )
 
     final_existing = [key for key in original_order if key not in delete_set]
@@ -730,32 +778,41 @@ def validate_edit_plan(
     if babel.version == 2:
         if keys is None:
             raise TextBinError("Internal error: Android key table is unavailable")
-        # Validate the complete future key table, including names not present in EN.
+        # Android additions are new global symbolic keys; a key that already exists
+        # in the companion dictionary cannot be added again.
+        existing_global = sorted(set(checked_additions) & set(keys.names))
+        if existing_global:
+            raise TextBinError(
+                f"Android 'add' contains {len(existing_global)} keys already present "
+                f"in the companion key table, e.g. {existing_global[:5]!r}"
+            )
         future_names = [name for name in keys.names if name not in delete_set]
         future_names.extend(checked_additions)
-        serialize_android_key_names(future_names)  # validates duplicate names/hashes
+        serialize_android_key_names(future_names)
 
     return EditPlan(
+        language=language_name,
         strings=checked_edited,
         additions=checked_additions,
         deletions=tuple(checked_deletions),
         delete_set=frozenset(delete_set),
     )
 
-
 def encode_windows_key(key: str) -> bytes:
     raw = key.encode("utf-8")
     return struct.pack("<I", len(raw)) + raw
 
 
-def serialize_windows_english(original: BabelFile, plan: EditPlan) -> bytes:
-    en = original.language(TARGET_LANGUAGE)
-    final_count = len(en.entries) - len(plan.delete_set) + len(plan.additions)
+def serialize_windows_language(original: BabelFile, plan: EditPlan) -> bytes:
+    selected = original.language(plan.language)
+    final_count = len(selected.entries) - len(plan.delete_set) + len(plan.additions)
     if not 0 <= final_count <= 0xFFFFFFFF:
-        raise TextBinError(f"Invalid rebuilt English entry count: {final_count}")
+        raise TextBinError(
+            f"Invalid rebuilt {plan.language} entry count: {final_count}"
+        )
 
     content = bytearray(struct.pack("<I", final_count))
-    for entry in en.entries:
+    for entry in selected.entries:
         key = entry.key
         if key in plan.delete_set:
             continue
@@ -775,34 +832,38 @@ def serialize_windows_english(original: BabelFile, plan: EditPlan) -> bytes:
         content += struct.pack("<I", len(value_raw))
         content += value_raw
 
-    content += en.footer
+    content += selected.footer
     if len(content) > 0xFFFFFFFF:
-        raise TextBinError("Rebuilt English language block exceeds u32 size")
+        raise TextBinError(
+            f"Rebuilt {plan.language} language block exceeds u32 size"
+        )
 
     raw = original.raw
-    header_before_size = raw[en.start_offset : en.block_size_offset]
-    rebuilt_en = header_before_size + struct.pack("<I", len(content)) + bytes(content)
-    return raw[: en.start_offset] + rebuilt_en + raw[en.content_end :]
-
+    header_before_size = raw[selected.start_offset : selected.block_size_offset]
+    rebuilt = header_before_size + struct.pack("<I", len(content)) + bytes(content)
+    return raw[: selected.start_offset] + rebuilt + raw[selected.content_end :]
 
 def serialize_android_babel(
     original: BabelFile, keys: AndroidKeyTable, plan: EditPlan
 ) -> bytes:
-    # Rebuild every language because delete is a global Android key operation.
+    # Rebuild every language because Android delete is a global key operation.
     out = bytearray(original.raw[:12])
     for language in original.languages:
-        additions = plan.additions if language.name == TARGET_LANGUAGE else {}
+        is_selected = language.name == plan.language
+        additions = plan.additions if is_selected else {}
         kept_count = 0
-        content = bytearray(b"\0\0\0\0")  # patch entry_count after filtering
+        content = bytearray(b"\0\0\0\0")
 
         for entry in language.entries:
             old_key = entry_symbolic_key(original, entry, keys)
             if old_key in plan.delete_set:
                 continue
-            value = plan.strings[old_key] if language.name == TARGET_LANGUAGE else entry.value
+            value = plan.strings[old_key] if is_selected else entry.value
             value_raw = value.encode("utf-8")
             if len(value_raw) > 0xFFFFFFFF:
-                raise TextBinError(f"Value for {old_key!r} in {language.name} is too large")
+                raise TextBinError(
+                    f"Value for {old_key!r} in {language.name} is too large"
+                )
             content += entry.key_raw
             content += struct.pack("<I", len(value_raw))
             content += value_raw
@@ -833,20 +894,18 @@ def serialize_android_babel(
 
     return bytes(out)
 
-
 def serialize_localization(
     original: BabelFile,
     keys: AndroidKeyTable | None,
     plan: EditPlan,
 ) -> bytes:
     if original.version == 1:
-        return serialize_windows_english(original, plan)
+        return serialize_windows_language(original, plan)
     if original.version == 2:
         if keys is None:
             raise TextBinError("Internal error: Android key table is unavailable")
         return serialize_android_babel(original, keys, plan)
     raise TextBinError(f"Internal error: unsupported Babel version {original.version}")
-
 
 def build_updated_android_key_table(
     original: AndroidKeyTable,
@@ -1150,9 +1209,10 @@ def load_json(path: Path) -> dict:
 
 
 def make_editable_json(
-    source: TextSource, keys: AndroidKeyTable | None
+    source: TextSource, keys: AndroidKeyTable | None, language_name: str
 ) -> dict:
-    en = source.babel.language(TARGET_LANGUAGE)
+    language_name = resolve_language(source.babel, language_name)
+    selected = source.babel.language(language_name)
     source_meta = {
         "file": source.path.name,
         "container": source.kind,
@@ -1164,23 +1224,21 @@ def make_editable_json(
     if source.kind == SOURCE_ZIP:
         source_meta["inner_member"] = INNER_MEMBER
 
-    result = {
+    return {
         "format": FORMAT_NAME,
         "format_version": FORMAT_VERSION,
         "babel_version": source.babel.version,
         "key_mode": "string",
         "source": source_meta,
-        "language": TARGET_LANGUAGE,
-        "string_count": len(en.entries),
+        "language": language_name,
+        "string_count": len(selected.entries),
         "strings": {
             entry_symbolic_key(source.babel, entry, keys): entry.value
-            for entry in en.entries
+            for entry in selected.entries
         },
         "add": {},
         "delete": [],
     }
-    return result
-
 
 def validate_editable_json(
     obj: dict, source: TextSource, keys: AndroidKeyTable | None
@@ -1204,10 +1262,8 @@ def validate_editable_json(
         raise TextBinError(
             f"JSON key_mode must be 'string', got {obj.get('key_mode')!r}"
         )
-    if obj.get("language") != TARGET_LANGUAGE:
-        raise TextBinError(
-            f"JSON language must be {TARGET_LANGUAGE!r}, got {obj.get('language')!r}"
-        )
+
+    language_name = resolve_language(babel, obj.get("language"))
 
     meta = obj.get("source")
     if not isinstance(meta, dict):
@@ -1241,20 +1297,21 @@ def validate_editable_json(
     if babel.version == 2 and keys is None:
         raise TextBinError("Internal error: Android key table is unavailable")
 
-    en = babel.language(TARGET_LANGUAGE)
-    if obj.get("string_count") != len(en.entries):
+    selected = babel.language(language_name)
+    if obj.get("string_count") != len(selected.entries):
         raise TextBinError(
-            f"JSON string_count is {obj.get('string_count')!r}, expected {len(en.entries)}"
+            f"JSON string_count is {obj.get('string_count')!r}, expected "
+            f"{len(selected.entries)} for {language_name}"
         )
 
     return validate_edit_plan(
         babel,
         keys,
+        language_name,
         obj.get("strings"),
         obj.get("add", {}),
         obj.get("delete", []),
     )
-
 
 def compare_language_headers(original: BabelFile, rebuilt: BabelFile) -> None:
     if original.version != rebuilt.version or original.key_mode != rebuilt.key_mode:
@@ -1270,27 +1327,33 @@ def validate_windows_rebuilt(
     compare_language_headers(original, rebuilt)
 
     for old, new in zip(original.languages, rebuilt.languages):
-        if old.name == TARGET_LANGUAGE:
+        if old.name == plan.language:
             continue
         old_raw = original.raw[old.start_offset : old.content_end]
         new_raw = rebuilt.raw[new.start_offset : new.content_end]
         if old_raw != new_raw:
             raise TextBinError(
-                f"Post-encode validation failed: non-English language {old.name} changed"
+                f"Post-encode validation failed: unselected language {old.name} changed"
             )
 
-    old_en = original.language(TARGET_LANGUAGE)
-    new_en = rebuilt.language(TARGET_LANGUAGE)
-    if new_en.footer != old_en.footer:
-        raise TextBinError("Post-encode validation failed: English footer changed")
+    old_selected = original.language(plan.language)
+    new_selected = rebuilt.language(plan.language)
+    if new_selected.footer != old_selected.footer:
+        raise TextBinError(
+            f"Post-encode validation failed: {plan.language} footer changed"
+        )
 
-    surviving = [entry for entry in old_en.entries if entry.key not in plan.delete_set]
+    surviving = [
+        entry for entry in old_selected.entries if entry.key not in plan.delete_set
+    ]
     expected_order = [entry.key for entry in surviving] + list(plan.additions)
-    actual_order = [entry.key for entry in new_en.entries]
+    actual_order = [entry.key for entry in new_selected.entries]
     if actual_order != expected_order:
-        raise TextBinError("Post-encode validation failed: English key order changed")
+        raise TextBinError(
+            f"Post-encode validation failed: {plan.language} key order changed"
+        )
 
-    for old, new in zip(surviving, new_en.entries):
+    for old, new in zip(surviving, new_selected.entries):
         if old.key_raw != new.key_raw:
             raise TextBinError(
                 f"Post-encode validation failed: raw key changed for {old.key!r}"
@@ -1300,12 +1363,12 @@ def validate_windows_rebuilt(
         key: value for key, value in plan.strings.items() if key not in plan.delete_set
     }
     expected.update(plan.additions)
-    actual = {entry.key: entry.value for entry in new_en.entries}
+    actual = {entry.key: entry.value for entry in new_selected.entries}
     if actual != expected:
         raise TextBinError(
-            "Post-encode validation failed: English key/value table did not round-trip"
+            f"Post-encode validation failed: {plan.language} key/value table "
+            "did not round-trip"
         )
-
 
 def validate_android_rebuilt(
     source: TextSource,
@@ -1324,6 +1387,7 @@ def validate_android_rebuilt(
                 f"Post-encode validation failed: footer changed for {old_lang.name}"
             )
 
+        is_selected = old_lang.name == plan.language
         expected_order: list[str] = []
         expected_values: list[str] = []
         for old_entry in old_lang.entries:
@@ -1332,12 +1396,10 @@ def validate_android_rebuilt(
                 continue
             expected_order.append(old_key)
             expected_values.append(
-                plan.strings[old_key]
-                if old_lang.name == TARGET_LANGUAGE
-                else old_entry.value
+                plan.strings[old_key] if is_selected else old_entry.value
             )
 
-        if old_lang.name == TARGET_LANGUAGE:
+        if is_selected:
             expected_order.extend(plan.additions)
             expected_values.extend(plan.additions.values())
 
@@ -1356,19 +1418,18 @@ def validate_android_rebuilt(
                 f"in {old_lang.name}"
             )
 
-    # Without structural Android edits, every non-English language must remain exact.
+    # Without global deletion, every unselected Android language must remain exact.
     if not plan.delete_set:
         for old, new in zip(original.languages, rebuilt.languages):
-            if old.name == TARGET_LANGUAGE:
+            if old.name == plan.language:
                 continue
             old_raw = original.raw[old.start_offset : old.content_end]
             new_raw = rebuilt.raw[new.start_offset : new.content_end]
             if old_raw != new_raw:
                 raise TextBinError(
-                    f"Post-encode validation failed: non-English language {old.name} "
+                    f"Post-encode validation failed: unselected language {old.name} "
                     "changed during a value-only/add-only edit"
                 )
-
 
 def validate_rebuilt_output(
     source: TextSource,
@@ -1395,11 +1456,17 @@ def print_android_keys_summary(keys: AndroidKeyTable | None) -> None:
     print(f"Android key entries:   {keys.count}")
 
 
-def command_decode(input_path: Path, json_path: Path, keys_path: Path | None) -> None:
+def command_decode(
+    input_path: Path,
+    json_path: Path,
+    keys_path: Path | None,
+    language_name: str,
+) -> None:
     source = load_text_source(input_path)
     keys = load_required_android_keys(source, keys_path)
-    en = source.babel.language(TARGET_LANGUAGE)
-    editable = make_editable_json(source, keys)
+    language_name = resolve_language(source.babel, language_name)
+    selected = source.babel.language(language_name)
+    editable = make_editable_json(source, keys, language_name)
 
     try:
         json_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1420,10 +1487,10 @@ def command_decode(input_path: Path, json_path: Path, keys_path: Path | None) ->
     print("JSON key mode:         string")
     print_android_keys_summary(keys)
     print(f"Languages:             {len(source.babel.languages)}")
-    print(f"English strings:       {len(en.entries)}")
-    print(f"English footer:        {len(en.footer)} bytes")
+    print(f"Selected language:     {language_name}")
+    print(f"Selected strings:      {len(selected.entries)}")
+    print(f"Selected footer:       {len(selected.footer)} bytes")
     print(f"Output JSON:           {json_path}")
-
 
 def command_encode(
     input_path: Path,
@@ -1480,7 +1547,7 @@ def command_encode(
 
     original_map = {
         entry_symbolic_key(source.babel, entry, input_keys): entry.value
-        for entry in source.babel.language(TARGET_LANGUAGE).entries
+        for entry in source.babel.language(plan.language).entries
     }
     changed_values = [
         key
@@ -1497,6 +1564,7 @@ def command_encode(
     print(f"Output:                {output_path}")
     print(f"Babel version/storage: {source.babel.version} / {source.babel.key_mode}")
     print("JSON key mode:         string")
+    print(f"Selected language:     {plan.language}")
     print_android_keys_summary(input_keys)
     if output_keys is not None and output_keys_path is not None and input_keys is not None:
         print(f"Output Android keys:   {output_keys_path}")
@@ -1508,11 +1576,11 @@ def command_encode(
             "Key-file no-op exact:  "
             + ("yes" if output_keys.raw == input_keys.raw else "no")
         )
-    print(f"Original EN strings:   {len(plan.strings)}")
+    print(f"Original strings:   {len(plan.strings)}")
     print(f"Modified values:       {len(changed_values)}")
     print(f"Added keys:            {len(plan.additions)}")
     print(f"Deleted keys:          {len(plan.deletions)}")
-    print(f"Final EN strings:      {final_count}")
+    print(f"Final strings:      {final_count}")
     print(
         f"Babel size:            {len(source.babel_raw)} -> {len(fresh_inner)} "
         f"({len(fresh_inner)-len(source.babel_raw):+d})"
@@ -1533,13 +1601,13 @@ def command_verify(input_path: Path, keys_path: Path | None) -> None:
     source = load_text_source(input_path)
     keys = load_required_android_keys(source, keys_path)
     babel = source.babel
-    en = babel.language(TARGET_LANGUAGE)
+    selected = babel.language(DEFAULT_LANGUAGE)
 
     mapping = {
         entry_symbolic_key(babel, entry, keys): entry.value
-        for entry in en.entries
+        for entry in selected.entries
     }
-    plan = validate_edit_plan(babel, keys, mapping, {}, [])
+    plan = validate_edit_plan(babel, keys, DEFAULT_LANGUAGE, mapping, {}, [])
     rebuilt_inner = serialize_localization(babel, keys, plan)
     rebuilt_output = build_output(source, rebuilt_inner)
     validate_rebuilt_output(source, keys, keys, rebuilt_output, plan)
@@ -1549,7 +1617,9 @@ def command_verify(input_path: Path, keys_path: Path | None) -> None:
     if keys is not None:
         rebuilt_keys = build_updated_android_key_table(keys, plan, keys.path)
         if rebuilt_keys.raw != keys.raw:
-            raise TextBinError("Android key-table no-op round-trip was not byte-identical")
+            raise TextBinError(
+                "Android key-table no-op round-trip was not byte-identical"
+            )
 
     print(f"Input:                 {input_path}")
     print(f"Input format:          {source.kind_label}")
@@ -1568,8 +1638,9 @@ def command_verify(input_path: Path, keys_path: Path | None) -> None:
     print_android_keys_summary(keys)
     print(f"Languages:             {len(babel.languages)}")
     print(f"Language order:        {', '.join(x.name for x in babel.languages)}")
-    print(f"English strings:       {len(en.entries)}")
-    print(f"English footer bytes:  {len(en.footer)}")
+    print(f"Default language:      {DEFAULT_LANGUAGE}")
+    print(f"Default strings:       {len(selected.entries)}")
+    print(f"Default footer bytes:  {len(selected.footer)}")
     print("Babel no-op exact:     yes")
     print("File no-op exact:      yes")
     if keys is not None:
@@ -1590,38 +1661,58 @@ def add_keys_argument(command: argparse.ArgumentParser) -> None:
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Edit Minion Rush English localization via symbolic-key JSON; Windows "
-            "accepts ZIP or raw input, while Android accepts raw .texts only"
+            "Edit a selected Minion Rush localization language via symbolic-key JSON; "
+            "Windows accepts ZIP or raw input, while Android accepts raw .texts only"
         )
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    decode = sub.add_parser("decode", help="Export all English strings to editable JSON")
-    decode.add_argument("input", type=Path, help="Windows: ZIP or raw; Android: raw .texts only")
+    decode = sub.add_parser(
+        "decode", help="Export one language to editable JSON (default: EN)"
+    )
+    decode.add_argument(
+        "input", type=Path, help="Windows: ZIP or raw; Android: raw .texts only"
+    )
     decode.add_argument("json", type=Path, help="Output editable JSON")
+    decode.add_argument(
+        "--language",
+        default=DEFAULT_LANGUAGE,
+        metavar="LANGUAGE",
+        help="Language to export, e.g. EN, FR, JA, ZH_HANT (default: EN)",
+    )
     add_keys_argument(decode)
 
-    encode = sub.add_parser("encode", help="Apply edited JSON; Android also writes a rebuilt .texts.keys")
-    encode.add_argument("input", type=Path, help="Exact source used for decode; Android must be raw .texts")
+    encode = sub.add_parser(
+        "encode",
+        help="Apply edited JSON to its selected language; Android also writes .texts.keys",
+    )
+    encode.add_argument(
+        "input", type=Path, help="Exact source used for decode; Android must be raw .texts"
+    )
     encode.add_argument("json", type=Path, help="Edited JSON")
-    encode.add_argument("output", type=Path, help="Windows preserves container type; Android output must be .texts")
+    encode.add_argument(
+        "output",
+        type=Path,
+        help="Windows preserves container type; Android output must be .texts",
+    )
     add_keys_argument(encode)
 
     verify = sub.add_parser(
         "verify",
         help="Validate format, Android keys, and byte-exact no-op round trip",
     )
-    verify.add_argument("input", type=Path, help="Windows: ZIP or raw; Android: raw .texts only")
+    verify.add_argument(
+        "input", type=Path, help="Windows: ZIP or raw; Android: raw .texts only"
+    )
     add_keys_argument(verify)
     return parser
-
 
 def main() -> int:
     parser = build_arg_parser()
     args = parser.parse_args()
     try:
         if args.command == "decode":
-            command_decode(args.input, args.json, args.keys)
+            command_decode(args.input, args.json, args.keys, args.language)
         elif args.command == "encode":
             command_encode(args.input, args.json, args.output, args.keys)
         elif args.command == "verify":
