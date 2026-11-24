@@ -58,8 +58,8 @@ except ImportError as exc:  # clearer error than a later NameError
     ) from exc
 
 
-ANDROID_FIRST_AREA = 61
-ANDROID_LAST_AREA = 76
+ANDROID_FIRST_AREA = 1
+ANDROID_LAST_AREA = 4
 WINDOWS_SAFE_AREADEF = "/Map_Area_005/MapAreaDef_005"
 WINDOWS_SAFE_BACKGROUND = "/MapAreaBG_FORT/MapAreaBackgroundData_FORT"
 WINDOWS_SAFE_TARGET = "/MapMissions/TargetDef/Run_x_meters"
